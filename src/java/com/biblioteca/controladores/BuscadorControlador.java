@@ -26,13 +26,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
-//import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexableField;
@@ -255,11 +253,12 @@ public class BuscadorControlador {
         return busquedaContenido;
     }
 
-    public String depurarContenidoAlguno() {
-        String[] busquedaContenido = this.cadenaBusqueda.split(" ");
+    public String depurarContenidoAlguno(String cont) {
+        String[] busquedaContenido = cont.split(" ");
         String buscar = "";
         for (int i = 0; i < busquedaContenido.length; i++) {
-            buscar = buscar + "+" + busquedaContenido[i] + " ";
+            buscar = buscar + "+" + busquedaContenido[i].trim()
+                    + " ";
         }
         return "(" + buscar.substring(0, buscar.length() - 1) + ")";
     }
@@ -282,8 +281,8 @@ public class BuscadorControlador {
         return buscar.substring(0, buscar.length() - 1);
     }
 
-    public String depurarContenidoAlgunoCorrec() {
-        String[] busquedaContenido = this.cadenaBusqueda.split(" ");
+    public String depurarContenidoAlgunoCorrec(String cad) {
+        String[] busquedaContenido = cad.split(" ");
         String buscar = "";
         for (int i = 0; i < busquedaContenido.length; i++) {
             buscar = buscar + "" + busquedaContenido[i] + "~ ";
@@ -327,7 +326,12 @@ public class BuscadorControlador {
         if (this.contenido.equals("1")) {
             cont = this.depurarContenidoTodo();
         } else {
-            cont = this.depurarContenidoAlguno();
+            String escapeChars ="[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
+            String escaped = cont.replaceAll(escapeChars, " ");
+            cont=escaped;
+            cont=cont.trim();
+            cont = this.depurarContenidoAlguno(cont);
+            System.out.println(cont);
         }
         if (metaDato.getIdMetaDato().intValue() == -1) {
             cont = "contenido:" + cont;
@@ -352,7 +356,11 @@ public class BuscadorControlador {
         if (hits.totalHits == 0) {
             if (!this.contenido.equals("1")) {
                 cont = this.cadenaBusqueda.trim();
-                cont = this.depurarContenidoAlgunoCorrec();
+                String escapeChars ="[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
+                String escaped = cont.replaceAll(escapeChars, " ");
+                cont=escaped;
+                cont=cont.trim();
+                cont = this.depurarContenidoAlgunoCorrec(cont);
                 if (metaDato.getIdMetaDato().intValue() == -1) {
                     cont = "contenido:" + cont;
                 } else {

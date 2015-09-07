@@ -6,8 +6,6 @@ package com.biblioteca.controladores.util;
 
 import com.biblioteca.controladores.UsuarioLoginControlador;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -27,8 +25,6 @@ public class DefaultPhaseListener implements PhaseListener {
 
     @Override
     public void afterPhase(PhaseEvent event) {
-
-
         
         FacesContext facesContext = event.getFacesContext();
         ExternalContext ext = facesContext.getExternalContext();

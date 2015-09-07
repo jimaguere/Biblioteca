@@ -123,11 +123,11 @@ public class UsuarioLoginControlador {
     }
 
     public void confirmar() throws Exception {
-        String ruta="";
+        String ruta = "";
         FacesContext context = FacesContext.getCurrentInstance();
         ServletContext servContx = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-             ruta = (String) servContx.getContextPath();
-             
+        ruta = (String) servContx.getContextPath();
+
         List<Usuario> usuarios = usuarioFacade.findUsuario(this.usuario);
         if (usuarios.isEmpty()) {
             context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, ResourceBundle.getBundle("/Bundle").getString("errorLogin"), this.usuario + ResourceBundle.getBundle("errorUsuarioNoExiste")));
@@ -144,7 +144,7 @@ public class UsuarioLoginControlador {
 
         if (user.getClave().equals(md5(this.clave))) {
             this.login = true;
-            context.getExternalContext().redirect(ruta+"/biblioteca/buscador/buscador.xhtml");
+            context.getExternalContext().redirect(ruta + "/biblioteca/buscador/buscador.xhtml");
         } else {
             context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, ResourceBundle.getBundle("/Bundle").getString("errorLogin"), ResourceBundle.getBundle("/Bundle").getString("mensajeNoLogin") + this.usuario));
         }
@@ -154,11 +154,11 @@ public class UsuarioLoginControlador {
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] b = md.digest(clear.getBytes());
         int size = b.length;
-        StringBuffer h = new StringBuffer(size);
+        StringBuilder h = new StringBuilder(size);
         for (int i = 0; i < size; i++) {
             int u = b[i] & 255;
             if (u < 16) {
-                h.append("0" + Integer.toHexString(u));
+                h.append("0").append(Integer.toHexString(u));
             } else {
                 h.append(Integer.toHexString(u));
             }
@@ -168,12 +168,12 @@ public class UsuarioLoginControlador {
     }
 
     public boolean permisosPagina(String currentPage) {
-        if(this.usuarioSession.getUsuarioRolSoftwareList()==null){
+        if (this.usuarioSession.getUsuarioRolSoftwareList() == null) {
             return false;
         }
-        List<UsuarioRolSoftware> roles=this.usuarioSession
-            .getUsuarioRolSoftwareList();
-        
+        List<UsuarioRolSoftware> roles = this.usuarioSession
+                .getUsuarioRolSoftwareList();
+
 
         for (UsuarioRolSoftware rol : roles) {
             for (RolSoftMenu menu : rol.getIdRol().getRolSoftMenuList()) {
@@ -185,18 +185,15 @@ public class UsuarioLoginControlador {
         return false;
     }
 
-        /**
-         * Creates a new instance of UsuarioLogin
-         */
-        @PostConstruct
-        public void reset    
-            () {
+    /**
+     * Creates a new instance of UsuarioLogin
+     */
+    @PostConstruct
+    public void reset() {
         ServletContext servContx = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-            url = (String) servContx.getContextPath();
+        url = (String) servContx.getContextPath();
 
-        }
-
-    
+    }
 
     public UsuarioLoginControlador() {
     }

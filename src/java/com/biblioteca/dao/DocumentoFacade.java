@@ -19,7 +19,7 @@ import javax.persistence.Query;
 public class DocumentoFacade extends AbstractFacade<Documento> {
     @PersistenceContext(unitName = "BibliotecaPU")
     private EntityManager em;
-
+    
     @Override
     protected EntityManager getEntityManager() {
         return em;
