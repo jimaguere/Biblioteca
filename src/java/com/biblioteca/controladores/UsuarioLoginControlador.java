@@ -192,7 +192,6 @@ public class UsuarioLoginControlador {
     public void reset() {
         ServletContext servContx = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
         url = (String) servContx.getContextPath();
-
     }
 
     public UsuarioLoginControlador() {

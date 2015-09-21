@@ -10,7 +10,6 @@ import com.biblioteca.entidad.DocumentoValorMetaDato;
 import java.io.File;
 import java.io.IOException;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
@@ -167,6 +166,42 @@ public class IndexarDocumento {
     public static void main(String arg[]) throws IOException{
         IndexarDocumento doc=new IndexarDocumento();
         doc.vaciarRepositorio("/home/mateo/repositorio");
+    }
+    
+    public void indexMetaData(String ruta) throws IOException{
+        directory = FSDirectory.open(new File(ruta));
+        writer = getWriter();
+        Document doc = new Document();
+        doc.add(new Field("id", "" + documento.getIdDocumento(),
+                Field.Store.YES,
+                Field.Index.NOT_ANALYZED));
+
+        doc.add(new Field("tipoDocumento", "" + documento.getIdTipoDoc().getIdTipoDoc(),
+                Field.Store.NO,
+                Field.Index.ANALYZED)); 
+        
+        doc.add(new Field("tipoDocumentoInfo", "" + documento.getIdTipoDoc().getNombre(),
+                Field.Store.YES,
+                Field.Index.NOT_ANALYZED)); 
+                
+        for(DocumentoValorMetaDato valor:documento.getDocumentoValorMetaDatoList()){
+           if(valor.getIdMetaDato().getMetaDatoIr()){
+                doc.add(new Field(valor.getIdMetaDato().getDescripcion(), "" + valor.getValorMetaDato(),
+                Field.Store.YES,
+                Field.Index.NOT_ANALYZED));
+                
+                doc.add(new Field(valor.getIdMetaDato().getIdMetaDato().toString(), "" + valor.getValorMetaDato(),
+                Field.Store.NO,
+                Field.Index.ANALYZED));
+           }else{
+                doc.add(new Field(valor.getIdMetaDato().getDescripcion(), "" + valor.getValorMetaDato(),
+                Field.Store.YES,
+                Field.Index.NOT_ANALYZED));
+           }
+        }
+        writer.addDocument(doc);
+        writer.close();
+        directory.close();
     }
     
 }

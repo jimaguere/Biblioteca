@@ -1,6 +1,7 @@
 package com.biblioteca.controladores;
 
 import com.biblioteca.clases.ExtracPdfText;
+import com.biblioteca.clases.IndexDemond;
 import com.biblioteca.clases.IndexarDocumento;
 import com.biblioteca.controladores.util.JsfUtil;
 import com.biblioteca.controladores.util.PaginationHelper;
@@ -183,6 +184,16 @@ public class DocumentoController implements Serializable {
                     IndexarDocumento index = new IndexarDocumento();
                     index.setDocumento(current);
                     index.indexarTexto(repositorio.getIndice());
+                }else{
+                    IndexarDocumento index = new IndexarDocumento();
+                    index.setDocumento(current);
+                    index.indexMetaData(repositorio.getIndice());
+                    IndexDemond demonio=new IndexDemond();
+                    demonio.setFileJar(rutaPdf);
+                    demonio.levantarDemonio
+                            ("jdbc:postgresql://localhost:5432/bd_biblioteca", 
+                            "1234", rutaPdf, rutaPdf);
+                    
                 }
             } else {
                 getFacade().remove(current);
@@ -380,11 +391,6 @@ public class DocumentoController implements Serializable {
     public void handleFileUpload(FileUploadEvent event) throws IOException {
         try {
             this.archivoDocumento = event.getFile();
-            if (this.getTamanioArchivo() > 200) {
-                JsfUtil.addSuccessMessage(archivoDocumento.getFileName() + " " + ResourceBundle.getBundle("/Bundle").getString("archivoCargadoExitosamente"));
-                current.setEstado(Short.parseShort(ResourceBundle.getBundle("/Bundle").getString("constanteEstadoDocumentoCreado")));
-                return;
-            }
             ExtracPdfText texto = new ExtracPdfText(archivoDocumento.getInputstream());
             this.current.setContenido(texto.extraerTexto());
             current.setEstado(Short.parseShort(ResourceBundle.getBundle("/Bundle").getString("constanteEstadoDocumentoIndexado")));
