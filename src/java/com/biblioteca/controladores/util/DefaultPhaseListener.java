@@ -53,7 +53,7 @@ public class DefaultPhaseListener implements PhaseListener {
         HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(false);
         if (session == null) {
             try {
-                ext.redirect(ctxPath + "/index.html?v=timeout");
+                ext.redirect(ctxPath + "/index.html?v=nosession");
             } catch (IOException ex) {
                 throw new FacesException("Sesión no login", ex);
             }

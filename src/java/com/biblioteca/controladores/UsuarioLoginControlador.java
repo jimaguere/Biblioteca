@@ -17,6 +17,7 @@ import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
@@ -114,12 +115,15 @@ public class UsuarioLoginControlador {
         this.usuarioSession = usuarioSession;
     }
 
-    public String cerrarSession() throws IOException {
+    public void cerrarSession() throws IOException {
         this.login = false;
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().clear();
         FacesContext.getCurrentInstance().getExternalContext().getSession(login);
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
-        return "/Inicial/Menu.xhtml";
+        ExternalContext ext = FacesContext.getCurrentInstance().getExternalContext();
+        String ctxPath = ((ServletContext) ext.getContext()).getContextPath();
+        ext.redirect(ctxPath + "/biblioteca/inicial/inicio.xhtml?close");
+
     }
 
     public void confirmar() throws Exception {
