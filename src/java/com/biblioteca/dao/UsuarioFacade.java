@@ -35,4 +35,10 @@ public class UsuarioFacade extends AbstractFacade<Usuario> {
         cq.setParameter("usuario", usuario);
         return cq.getResultList();
     }
+    
+    public List<Usuario> findUsuariosSistema(){
+        return null;
+        
+    }
+    
 }

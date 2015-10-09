@@ -134,7 +134,7 @@ public class UsuarioLoginControlador {
 
         List<Usuario> usuarios = usuarioFacade.findUsuario(this.usuario);
         if (usuarios.isEmpty()) {
-            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, ResourceBundle.getBundle("/Bundle").getString("errorLogin"), this.usuario + ResourceBundle.getBundle("errorUsuarioNoExiste")));
+            context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, ResourceBundle.getBundle("/Bundle").getString("errorLogin"), ResourceBundle.getBundle("/Bundle").getString("errorUsuarioNoExiste")));
             return;
         }
 

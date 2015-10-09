@@ -1,10 +1,9 @@
 package com.biblioteca.controladores;
 
-import com.biblioteca.entidad.TipoDato;
 import com.biblioteca.controladores.util.JsfUtil;
 import com.biblioteca.controladores.util.PaginationHelper;
 import com.biblioteca.dao.TipoDatoFacade;
-
+import com.biblioteca.entidad.TipoDato;
 import java.io.Serializable;
 import java.util.ResourceBundle;
 import javax.ejb.EJB;

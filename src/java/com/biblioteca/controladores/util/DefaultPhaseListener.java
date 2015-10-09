@@ -33,7 +33,7 @@ public class DefaultPhaseListener implements PhaseListener {
         String currentPage = facesContext.getViewRoot().getViewId();
         boolean isLoginPage;
 
-        isLoginPage = (currentPage.lastIndexOf("index.xhtml") > -1);
+        isLoginPage = (currentPage.lastIndexOf("index.xhtml") > -1)||(currentPage.lastIndexOf("template.xhtml") > -1);
 
         if (isLoginPage) {
             HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(false);
