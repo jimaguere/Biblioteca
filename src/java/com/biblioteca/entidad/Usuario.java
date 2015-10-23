@@ -43,7 +43,9 @@ import javax.validation.constraints.Size;
     @NamedQuery(name = "Usuario.findByFechaCreacion", query = "SELECT u FROM Usuario u WHERE u.fechaCreacion = :fechaCreacion"),
     @NamedQuery(name = "Usuario.findByFechaVigencia", query = "SELECT u FROM Usuario u WHERE u.fechaVigencia = :fechaVigencia"),
     @NamedQuery(name = "Usuario.findByEstado", query = "SELECT u FROM Usuario u WHERE u.estado = :estado"),
-    @NamedQuery(name = "Usuario.findByClave", query = "SELECT u FROM Usuario u WHERE u.clave = :clave")})
+    @NamedQuery(name = "Usuario.findByClave", query = "SELECT u FROM Usuario u WHERE u.clave = :clave"),
+    @NamedQuery(name = "Usuario.findBySistema",query= "SELECT u FROM Usuario u WHERE u.usuario in(SELECT r.usuario.usuario FROM UsuarioRolSoftware r )")
+})
 public class Usuario implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<LogConsulta> logConsultaList;
@@ -122,6 +124,7 @@ public class Usuario implements Serializable {
         this.fechaVigencia = fechaVigencia;
         this.estado = estado;
         this.clave = clave;
+
     }
 
     public String getUsuario() {

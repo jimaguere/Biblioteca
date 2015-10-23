@@ -16,9 +16,9 @@
             <h:form>
                 <h:panelGrid columns="2">
                     <h:outputLabel value="#{bundle.CreateRolSoftwareLabel_idRol}" for="idRol" />
-                    <h:inputText id="idRol" value="#{rolSoftwareController.selected.idRol}" title="#{bundle.CreateRolSoftwareTitle_idRol}" required="true" requiredMessage="#{bundle.CreateRolSoftwareRequiredMessage_idRol}"/>
+                    <h:inputText id="idRol" value="#{rolSoftwareController.current.idRol}" title="#{bundle.CreateRolSoftwareTitle_idRol}" required="true" requiredMessage="#{bundle.CreateRolSoftwareRequiredMessage_idRol}"/>
                     <h:outputLabel value="#{bundle.CreateRolSoftwareLabel_descripcion}" for="descripcion" />
-                    <h:inputText id="descripcion" value="#{rolSoftwareController.selected.descripcion}" title="#{bundle.CreateRolSoftwareTitle_descripcion}" required="true" requiredMessage="#{bundle.CreateRolSoftwareRequiredMessage_descripcion}"/>
+                    <h:inputText id="descripcion" value="#{rolSoftwareController.current.descripcion}" title="#{bundle.CreateRolSoftwareTitle_descripcion}" required="true" requiredMessage="#{bundle.CreateRolSoftwareRequiredMessage_descripcion}"/>
                 </h:panelGrid>
                 <br />
                 <h:commandLink action="#{rolSoftwareController.create}" value="#{bundle.CreateRolSoftwareSaveLink}" />

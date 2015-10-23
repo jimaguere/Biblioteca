@@ -4,6 +4,7 @@
  */
 package com.biblioteca.dao;
 
+import com.biblioteca.entidad.TipoDocumento;
 import com.biblioteca.entidad.Usuario;
 import java.util.List;
 import javax.ejb.Stateless;
@@ -35,10 +36,16 @@ public class UsuarioFacade extends AbstractFacade<Usuario> {
         cq.setParameter("usuario", usuario);
         return cq.getResultList();
     }
-    
-    public List<Usuario> findUsuariosSistema(){
-        return null;
-        
+
+    public List<Usuario> findUsuariosSistema() {
+        Query cq = getEntityManager().createNamedQuery("Usuario.findBySistema");
+        return cq.getResultList();
     }
-    
+
+    public void editar(Usuario usuario) {
+        Query cq = getEntityManager().createNativeQuery("delete from usuario_rol_software where usuario=?");
+        cq.setParameter(1, usuario.getUsuario());
+        cq.executeUpdate();
+        getEntityManager().merge(usuario);
+    }
 }

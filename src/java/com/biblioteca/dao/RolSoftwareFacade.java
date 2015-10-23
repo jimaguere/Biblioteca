@@ -8,6 +8,7 @@ import com.biblioteca.entidad.RolSoftware;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -25,6 +26,13 @@ public class RolSoftwareFacade extends AbstractFacade<RolSoftware> {
 
     public RolSoftwareFacade() {
         super(RolSoftware.class);
+    }
+    
+    public void editar(RolSoftware rolSoftware){
+        Query cq = getEntityManager().createNativeQuery("delete from rol_soft_menu where id_rol=?");
+        cq.setParameter(1, rolSoftware.getIdRol());
+        cq.executeUpdate();
+        getEntityManager().merge(rolSoftware);
     }
     
 }

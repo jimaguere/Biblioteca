@@ -1,130 +1,196 @@
 package com.biblioteca.controladores;
 
 import com.biblioteca.controladores.util.JsfUtil;
-import com.biblioteca.controladores.util.PaginationHelper;
 import com.biblioteca.dao.RolSoftwareFacade;
+import com.biblioteca.entidad.Menu;
+import com.biblioteca.entidad.RolSoftMenu;
 import com.biblioteca.entidad.RolSoftware;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
-import javax.faces.model.DataModel;
-import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
+import org.primefaces.model.CheckboxTreeNode;
+import org.primefaces.model.TreeNode;
 
 @ManagedBean(name = "rolSoftwareController")
-@SessionScoped
+@ViewScoped
 public class RolSoftwareController implements Serializable {
 
     private RolSoftware current;
-    private DataModel items = null;
+    private List<RolSoftware> items = null;
+    private boolean listar;
+    private boolean editar;
+    private TreeNode root3;
+    private TreeNode[] selectedNodes2;
     @EJB
     private com.biblioteca.dao.RolSoftwareFacade ejbFacade;
-    private PaginationHelper pagination;
-    private int selectedItemIndex;
+    @EJB
+    private com.biblioteca.dao.MenuFacade ejbMenuFacade;
+
+    public RolSoftware getCurrent() {
+        return current;
+    }
+
+    public void setCurrent(RolSoftware current) {
+        this.current = current;
+    }
+
+    public List<RolSoftware> getItems() {
+        return items;
+    }
+
+    public void setItems(List<RolSoftware> items) {
+        this.items = items;
+    }
+
+    public boolean isListar() {
+        return listar;
+    }
+
+    public void setListar(boolean listar) {
+        this.listar = listar;
+    }
+
+    public boolean isEditar() {
+        return editar;
+    }
+
+    public void setEditar(boolean editar) {
+        this.editar = editar;
+    }
+
+    public TreeNode getRoot3() {
+        return root3;
+    }
+
+    public void setRoot3(TreeNode root3) {
+        this.root3 = root3;
+    }
 
     public RolSoftwareController() {
     }
 
-    public RolSoftware getSelected() {
-        if (current == null) {
-            current = new RolSoftware();
-            selectedItemIndex = -1;
-        }
-        return current;
+    public TreeNode[] getSelectedNodes2() {
+        return selectedNodes2;
+    }
+
+    public void setSelectedNodes2(TreeNode[] selectedNodes2) {
+        this.selectedNodes2 = selectedNodes2;
+    }
+
+    @PostConstruct
+    public void iniciar() {
+        items = getFacade().findAll();
+        this.listar = true;
+
     }
 
     private RolSoftwareFacade getFacade() {
         return ejbFacade;
     }
 
-    public PaginationHelper getPagination() {
-        if (pagination == null) {
-            pagination = new PaginationHelper(10) {
-                @Override
-                public int getItemsCount() {
-                    return getFacade().count();
-                }
-
-                @Override
-                public DataModel createPageDataModel() {
-                    return new ListDataModel(getFacade().findRange(new int[]{getPageFirstItem(), getPageFirstItem() + getPageSize()}));
-                }
-            };
-        }
-        return pagination;
-    }
-
-    public String prepareList() {
-        recreateModel();
-        return "List";
-    }
-
-    public String prepareView() {
-        current = (RolSoftware) getItems().getRowData();
-        selectedItemIndex = pagination.getPageFirstItem() + getItems().getRowIndex();
-        return "View";
-    }
-
-    public String prepareCreate() {
+    public void prepareCreate() {
         current = new RolSoftware();
-        selectedItemIndex = -1;
-        return "Create";
+        this.listar = false;
+        this.editar = false;
+        List<Menu> menus = this.ejbMenuFacade.findAll();
+        root3 = new CheckboxTreeNode(new Menu(Integer.SIZE, "", ""), null);
+        TreeNode root[] = new TreeNode[menus.size()];
+        int i = 0;
+        for (Menu menu : menus) {
+            if (menu.getPadreIdMenu() == null) {
+                root[i] = new CheckboxTreeNode(menu, root3);
+                int j = i + 1;
+                for (Menu menuHijo : menu.getMenuList()) {
+                    root[j] = new CheckboxTreeNode(menuHijo, root[i]);
+                    j++;
+                }
+                i++;
+            }
+        }
     }
 
-    public String create() {
+    public void create() {
         try {
+            current.setRolSoftMenuList(new ArrayList<RolSoftMenu>());
+            asociarRolMenu();
             getFacade().create(current);
             JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("RolSoftwareCreated"));
-            return prepareCreate();
+            iniciar();
         } catch (Exception e) {
             JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
-            return null;
         }
     }
 
-    public String prepareEdit() {
-        current = (RolSoftware) getItems().getRowData();
-        selectedItemIndex = pagination.getPageFirstItem() + getItems().getRowIndex();
-        return "Edit";
+    public void prepareEdit(RolSoftware rolSoftware) {
+        current = rolSoftware;
+        this.listar = false;
+        this.editar = true;
+        List<Menu> menus = this.ejbMenuFacade.findAll();
+        root3 = new CheckboxTreeNode(new Menu(Integer.SIZE, "", ""), null);
+        TreeNode root[] = new TreeNode[menus.size()];
+        int i = 0;
+        for (Menu menu : menus) {
+            if (menu.getPadreIdMenu() == null) {
+                root[i] = new CheckboxTreeNode(menu, root3);
+                int j = i + 1;
+                for (Menu menuHijo : menu.getMenuList()) {
+                    root[j] = new CheckboxTreeNode(menuHijo, root[i]);
+                    for (RolSoftMenu rolMenu : current.getRolSoftMenuList()) {
+                        if (rolMenu.getIdMenu().getIdMenu().intValue() == menuHijo.getIdMenu().intValue()) {
+                            root[j].setSelected(true);
+                        }
+                    }
+                    j++;
+                }
+                i++;
+            }
+        }
     }
 
-    public String update() {
+    public void asociarRolMenu() {
+        Set<Menu> menus=new HashSet <Menu>();
+        current.setRolSoftMenuList(new ArrayList<RolSoftMenu>());
+        for (TreeNode node : selectedNodes2) {
+            Menu menu = (Menu) node.getData();
+            menus.add(menu);
+            if(menu.getPadreIdMenu()!=null){
+                menus.add(menu.getPadreIdMenu());        
+            }    
+        }
+        List<Menu> listaMenu=new ArrayList<Menu>(menus);
+        for(Menu menu:listaMenu){
+                RolSoftMenu rolSoftMenuPadre = new RolSoftMenu();
+                rolSoftMenuPadre.setIdMenu(menu);
+                rolSoftMenuPadre.setIdRol(current);
+                current.getRolSoftMenuList().add(rolSoftMenuPadre);
+        }        
+    }
+
+    public void update() {
         try {
-            getFacade().edit(current);
+            asociarRolMenu();
+            getFacade().editar(current);
             JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("RolSoftwareUpdated"));
-            return "View";
         } catch (Exception e) {
             JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
-            return null;
         }
     }
 
-    public String destroy() {
-        current = (RolSoftware) getItems().getRowData();
-        selectedItemIndex = pagination.getPageFirstItem() + getItems().getRowIndex();
+    public void destroy() {
         performDestroy();
-        recreatePagination();
-        recreateModel();
-        return "List";
-    }
-
-    public String destroyAndView() {
-        performDestroy();
-        recreateModel();
-        updateCurrentItem();
-        if (selectedItemIndex >= 0) {
-            return "View";
-        } else {
-            // all items were removed - go back to list
-            recreateModel();
-            return "List";
-        }
+        iniciar();
     }
 
     private void performDestroy() {
@@ -134,48 +200,6 @@ public class RolSoftwareController implements Serializable {
         } catch (Exception e) {
             JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
         }
-    }
-
-    private void updateCurrentItem() {
-        int count = getFacade().count();
-        if (selectedItemIndex >= count) {
-            // selected index cannot be bigger than number of items:
-            selectedItemIndex = count - 1;
-            // go to previous page if last page disappeared:
-            if (pagination.getPageFirstItem() >= count) {
-                pagination.previousPage();
-            }
-        }
-        if (selectedItemIndex >= 0) {
-            current = getFacade().findRange(new int[]{selectedItemIndex, selectedItemIndex + 1}).get(0);
-        }
-    }
-
-    public DataModel getItems() {
-        if (items == null) {
-            items = getPagination().createPageDataModel();
-        }
-        return items;
-    }
-
-    private void recreateModel() {
-        items = null;
-    }
-
-    private void recreatePagination() {
-        pagination = null;
-    }
-
-    public String next() {
-        getPagination().nextPage();
-        recreateModel();
-        return "List";
-    }
-
-    public String previous() {
-        getPagination().previousPage();
-        recreateModel();
-        return "List";
     }
 
     public SelectItem[] getItemsAvailableSelectMany() {
