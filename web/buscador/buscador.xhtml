@@ -51,6 +51,7 @@
                                                  required="true"
                                                  requiredMessage="#{bundle.valorBusquedaRequerido}"
                                                  value="#{buscadorControlador.cadenaBusqueda}"
+                                                 completeMethod="#{buscadorControlador.completeGeneral}"
                                                  />
 
                             </h:panelGrid>
@@ -103,6 +104,7 @@
                                                  required="true"
                                                  requiredMessage="#{bundle.valorBusquedaRequerido}"
                                                  value="#{buscadorControlador.cadenaBusqueda}"
+                                                 completeMethod="#{buscadorControlador.completeGeneral}"
                                                  />
 
                                 <p:commandButton
@@ -152,17 +154,46 @@
                                               rendered="#{valorMetaDato.idMetaDato.idTipoDato.idTipoDato.intValue()!=documentoController.constanteTipoDatoCadena}"/>
                             </p:column>                                  
                         </p:dataTable>
+
+
                         <p:commandButton value="#{bundle.actionDescargarDocumento}" 
                                          ajax="false"
                                          rendered="#{buscadorControlador.seleccionDocumento}">
                             <p:fileDownload value="#{buscadorControlador.file}" />
                         </p:commandButton>
+                        
+                        <p:commandButton value="#{bundle.actionDocuemntosRelacionados}"
+                                         actionListener="#{buscadorControlador.relacionarDocumentos}"
+                                         rendered="#{buscadorControlador.seleccionDocumento}"
+                                         ajax="true" update="form"
+                            />
+
                         <p:commandButton value="#{bundle.actionVolverConsulta}"
                                          rendered="#{buscadorControlador.seleccionDocumento}"
                                          ajax="true"
                                          update="form"
                                          actionListener="#{buscadorControlador.regresar}"/>
+                        
+                        
+                        <p:dataGrid value="#{buscadorControlador.documentoSeleccionado.documentosRelacionados}" 
+                                    rendered="#{buscadorControlador.relacionados}"
+                                    var="item" emptyMessage="#{bundle.ListDocumentoEmpty}"
+                                    columns="1"
+                                    layout="grid"
+                                    paginator="true"
+                                    rows="5"
+                                    >
+                            <p:panel  style="text-align:center">
+                                <h:panelGrid columns="2">
+                                    <p:commandButton icon="ui-icon-search" title="#{item.idDocumento}"
+                                                     ajax="true" update="form"
+                                                     actionListener="#{buscadorControlador.asignarDocumento(item)}"/>
+                                    <h:outputText value="#{item.metaDatosDocumentos}"/>
+                                </h:panelGrid>
+                            </p:panel>
 
+                        </p:dataGrid>
+                        
                     </h:form>
                 </center>
             </ui:define>

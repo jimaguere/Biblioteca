@@ -5,6 +5,7 @@
 package com.biblioteca.dao;
 
 import com.biblioteca.entidad.Documento;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -39,6 +40,20 @@ public class DocumentoFacade extends AbstractFacade<Documento> {
         q.setParameter(1, doc.getIdDocumento());
         q.executeUpdate();
         getEntityManager().merge(doc);
+    }
+
+    public List<Object[]> findAllJaroWordsComplet(String string) {
+        List<Object[]> listWords=new ArrayList<Object[]>();
+         try {
+            javax.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
+
+            listWords= getEntityManager().createNativeQuery("select distinct palabra,"
+                    + " fn_porcentaje_similitud((palabra) ,'" + string + "') as aceptacion"
+                    + " from vocabulario"
+                    + " where"
+                    + " fn_porcentaje_similitud(palabra,'" + string + "')>0.6 order by aceptacion desc").getResultList();
+        } catch (Exception e) {}
+         return listWords;
     }
     
 }

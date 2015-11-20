@@ -74,6 +74,8 @@ public class Documento implements Serializable {
     private TipoDocumento idTipoDoc;
     @Transient
     private String metaDatosDocumentos;
+    @Transient
+    private List<Documento> documentosRelacionados;
 
     public Documento() {
     }
@@ -144,6 +146,16 @@ public class Documento implements Serializable {
     public void setMetaDatosDocumentos(String metaDatosDocumentos) {
         this.metaDatosDocumentos = metaDatosDocumentos;
     }
+
+    public List<Documento> getDocumentosRelacionados() {
+        return documentosRelacionados;
+    }
+
+    public void setDocumentosRelacionados(List<Documento> documentosRelacionados) {
+        this.documentosRelacionados = documentosRelacionados;
+    }
+    
+    
 
     @Override
     public int hashCode() {

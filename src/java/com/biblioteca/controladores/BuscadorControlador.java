@@ -53,7 +53,6 @@ import org.primefaces.model.StreamedContent;
 @ViewScoped
 public class BuscadorControlador {
 
-
     private FSDirectory dir;
     private IndexSearcher searcher;
     private String tipoBusqueda;
@@ -72,6 +71,8 @@ public class BuscadorControlador {
     private LogDescargas logD;
     private LogConsulta logC;
     private UsuarioLoginControlador usuario;
+    private boolean relacionados;
+    private String busquedaRelacionada;
     @EJB
     private TipoDocumentoFacade tipoDocumentoEjbFacade;
     @EJB
@@ -171,6 +172,14 @@ public class BuscadorControlador {
         return file;
     }
 
+    public boolean isRelacionados() {
+        return relacionados;
+    }
+
+    public void setRelacionados(boolean relacionados) {
+        this.relacionados = relacionados;
+    }
+
     public void actualizarTipoDocumento() {
         if (tipoDocumento.getIdTipoDoc().intValue() != -1) {
             tipoDocumento = tipoDocumentoEjbFacade.find(tipoDocumento.getIdTipoDoc());
@@ -186,7 +195,7 @@ public class BuscadorControlador {
      */
     public BuscadorControlador() {
         this.tipoBusqueda = "1";
-    }    
+    }
 
     @PostConstruct
     public void iniciar() throws IOException {
@@ -212,40 +221,42 @@ public class BuscadorControlador {
         this.tipoBusqueda = "1";
         this.cadenaBusqueda = "";
         this.contenido = "1";
+        this.relacionados = false;
+        this.busquedaRelacionada = "";
     }
 
     public List<String> completeGeneral(String query) {
-        /*   query = query.replaceAll("'", "");
-         List<String> resul = new ArrayList<String>();
-         List<Object[]> listaWords;
-         String[] listaTitulo = query.split(" ");
-         String res = "";
-         if(listaTitulo.length==0){
-         return resul;
-         }
-         for (int i = 0; i < listaTitulo.length - 1; i++) {
-         if (i == 0) {
-         res = listaTitulo[i];
-         } else {
-         res = res + " " + listaTitulo[i];
-         }
-         }
-         listaWords = this.vocabularioFacadel.findAllJaroWordsComplet(listaTitulo[listaTitulo.length - 1]);
-         if (listaWords.isEmpty()) {
-         return resul;
-         }
-         for (int i = 0; i < listaTitulo.length; i++) {
-         if (i > 5) {
-         break;
-         }
-         if (res.equals("")) {
-         resul.add(listaWords.get(i)[0].toString());
-         } else {
-         resul.add(res + " " + listaWords.get(i)[0].toString());
-         }
-         }
-         return resul;*/
-        return null;
+        query = query.replaceAll("'", "");
+        List<String> resul = new ArrayList<String>();
+        List<Object[]> listaWords;
+        String[] listaTitulo = query.split(" ");
+        String res = "";
+        if (listaTitulo.length == 0) {
+            return resul;
+        }
+        for (int i = 0; i < listaTitulo.length - 1; i++) {
+            if (i == 0) {
+                res = listaTitulo[i];
+            } else {
+                res = res + " " + listaTitulo[i];
+            }
+        }
+        listaWords = this.documentoEjbFacade.findAllJaroWordsComplet(listaTitulo[listaTitulo.length - 1]);
+        if (listaWords.isEmpty()) {
+            return resul;
+        }
+        for (int i = 0; i < listaTitulo.length; i++) {
+            if (i > 5) {
+                break;
+            }
+            if (res.equals("")) {
+                resul.add(listaWords.get(i)[0].toString());
+            } else {
+                resul.add(res + " " + listaWords.get(i)[0].toString());
+            }
+        }
+        return resul;
+
     }
 
     public String depurarContenidoTodo() {
@@ -291,7 +302,7 @@ public class BuscadorControlador {
     }
 
     public void generarResultados(TopDocs hits) throws IOException {
-        this.logC=new LogConsulta();
+        this.logC = new LogConsulta();
         this.btBusqueda = true;
         this.seleccionDocumento = false;
         this.listaDocuementos = new ArrayList<Documento>();
@@ -312,26 +323,27 @@ public class BuscadorControlador {
         this.logC.setConsulta(this.cadenaBusqueda);
         this.logC.setFechaConsulta(new Date());
         this.logC.setLogDescargasList(new ArrayList<LogDescargas>());
-        this.logConsultaEjbFacade.create(logC);       
+        this.logConsultaEjbFacade.create(logC);
     }
 
     @SuppressWarnings("UnusedAssignment")
     public void buscar() throws ParseException, IOException {
+        this.relacionados = false;
         String cont;
+        this.busquedaRelacionada = this.cadenaBusqueda.trim();
         if (metaDato.getIdMetaDato().intValue() != -1) {
             metaDato = metaDatoEjbFacade.find(metaDato.getIdMetaDato());
         }
-        
+
         cont = this.cadenaBusqueda.trim();
         if (this.contenido.equals("1")) {
             cont = this.depurarContenidoTodo();
         } else {
-            String escapeChars ="[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
+            String escapeChars = "[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
             String escaped = cont.replaceAll(escapeChars, " ");
-            cont=escaped;
-            cont=cont.trim();
+            cont = escaped;
+            cont = cont.trim();
             cont = this.depurarContenidoAlguno(cont);
-            System.out.println(cont);
         }
         if (metaDato.getIdMetaDato().intValue() == -1) {
             cont = "contenido:" + cont;
@@ -349,17 +361,16 @@ public class BuscadorControlador {
                 Version.LUCENE_46));
         parser.setAllowLeadingWildcard(true);
         parser.setFuzzyMinSim(Float.parseFloat("2.0"));
-
         Query query = parser.parse(cont);
-        System.out.println(cont);
         TopDocs hits = searcher.search(query, 30);
+
         if (hits.totalHits == 0) {
             if (!this.contenido.equals("1")) {
                 cont = this.cadenaBusqueda.trim();
-                String escapeChars ="[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
+                String escapeChars = "[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
                 String escaped = cont.replaceAll(escapeChars, " ");
-                cont=escaped;
-                cont=cont.trim();
+                cont = escaped;
+                cont = cont.trim();
                 cont = this.depurarContenidoAlgunoCorrec(cont);
                 if (metaDato.getIdMetaDato().intValue() == -1) {
                     cont = "contenido:" + cont;
@@ -370,7 +381,6 @@ public class BuscadorControlador {
                     cont = cont + " AND tipoDocumento:" + tipoDocumento.getIdTipoDoc();
                 }
                 query = parser.parse(cont);
-                System.out.println(cont);
                 hits = searcher.search(query, 30);
             }
         }
@@ -380,6 +390,7 @@ public class BuscadorControlador {
     public void asignarDocumento(Documento doc) throws FileNotFoundException {
         this.documentoSeleccionado = this.documentoEjbFacade.find(doc.getIdDocumento());
         this.seleccionDocumento = true;
+        this.relacionados = false;
         stream = new FileInputStream(repositorio.getRutaOntologia() + this.documentoSeleccionado.getIdDocumento() + ".pdf");
         file = new DefaultStreamedContent(stream, "application/pdf", "doc.pdf");
         this.logD = new LogDescargas();
@@ -392,8 +403,45 @@ public class BuscadorControlador {
     public StreamedContent downloadPDF() throws IOException {
         return new DefaultStreamedContent(stream, "application/pdf", "documento.pdf");
     }
-    
-    public void regresar(){
-        this.seleccionDocumento=false;
+
+    public void regresar() {
+        this.seleccionDocumento = false;
+        this.relacionados = false;
+    }
+
+    public void relacionarDocumentos() throws IOException, ParseException {
+        this.relacionados = true;
+        QueryParser parser;
+        parser = new QueryParser(Version.LUCENE_46,
+                "contenido",
+                new SpanishAnalyzer(
+                Version.LUCENE_46));
+        parser.setAllowLeadingWildcard(true);
+        parser.setFuzzyMinSim(Float.parseFloat("2.0"));
+
+        String cont = "(" + QueryParser.escape(this.documentoSeleccionado.getMetaDatosValor()) + ")+(" + this.busquedaRelacionada + ")";
+        Query query = parser.parse(cont);
+
+        TopDocs hits = searcher.search(query, 10);
+
+        this.documentoSeleccionado.setDocumentosRelacionados(new ArrayList<Documento>());
+
+        for (ScoreDoc scoreDoc : hits.scoreDocs) {
+            Document doc = searcher.doc(scoreDoc.doc);
+            Documento documento = new Documento();
+
+            documento.setIdDocumento(Integer.parseInt(doc.get("id")));
+            if (documento.getIdDocumento().intValue() == this.documentoSeleccionado.getIdDocumento().intValue()) {
+                continue;
+            }
+            documento.setMetaDatosDocumentos("");
+            for (IndexableField index : doc.getFields()) {
+                if (!doc.get("id").equals(index.stringValue())) {
+                    documento.setMetaDatosDocumentos(documento.getMetaDatosDocumentos() + "\n" + index.stringValue());
+                }
+            }
+                          
+            this.documentoSeleccionado.getDocumentosRelacionados().add(documento);
+        }
     }
 }
