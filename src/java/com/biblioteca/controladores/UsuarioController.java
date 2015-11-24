@@ -144,14 +144,12 @@ public class UsuarioController implements Serializable {
         return prepareList();
     }
 
-    public String update() {
+    public void update() {
         try {
             getFacade().edit(current);
             JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("UsuarioUpdated"));
-            return prepareList();
         } catch (Exception e) {
             JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
-            return null;
         }
     }
 
@@ -236,15 +234,15 @@ public class UsuarioController implements Serializable {
         return JsfUtil.getSelectItems(ejbFacade.findAll(), true);
     }
 
-    public void cambioClave() {
-        this.current.setClave(confirmarClave);
+    public void cambioClave() throws Exception {
+        this.current.setClave(md5(confirmarClave));
         update();
     }
 
     public void validarClave() throws Exception {
         if (!md5(claveActual).equals(current.getClave())) {
             this.claveActual="";
-            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("mensajeNoCoincideClave"));
         }
     }
 

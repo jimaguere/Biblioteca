@@ -13,13 +13,13 @@
                 <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
             </h:panelGroup>
 
-            <p:accordionPanel>
+            <p:accordionPanel id="accordion">
 
                 <p:tab title="#{bundle.legendInfoBasica}">
                     <p:fieldset legend="#{bundle.legendInfoBasica}">
-                        <h:form>
-                            <p:growl/>
-                            <h:panelGrid columns="2">
+                        <h:form id="form1">
+                            <p:growl showDetail="true"/>
+                            <h:panelGrid columns="2" cellspacing="30">
                                 <h:panelGroup>  
                                     <h:panelGrid>
                                         <h:outputLabel value="#{bundle.EditUsuarioLabel_nombres}" for="nombres" />
@@ -55,44 +55,63 @@
                                 </h:panelGroup>
                                 <h:panelGroup/>
 
-                                <p:commandButton action="#{usuarioController.update}" value="#{bundle.EditUsuarioSaveLink}"/>
+                                <p:commandButton action="#{usuarioController.update}" value="#{bundle.EditUsuarioSaveLink}" ajax="true" update="form1"
+                                                 style="width: 40%"/>
                             </h:panelGrid>
                         </h:form>
                     </p:fieldset>
                 </p:tab>
                 <p:tab title="#{bundle.legendInfoSeg}">
                     <p:fieldset legend="#{bundle.legendInfoSeg}">
-                        <h:form id="formSeg">
-                            <h:panelGrid columns="1">    
-                                <p:message for="claveAct"/>
-                                <p:outputLabel value="#{bundle.labelClaveActual}" for="claveAct" />  
-                                <p:password id="claveAct" value="#{usuarioController.claveActual}"
-                                            title="#{bundle.CreateUsuarioTitle_clave}" 
-                                            required="true" 
-                                            requiredMessage="#{bundle.CreateUsuarioRequiredMessage_clave}"
-                                            size="50"
-                                            > 
-                                    <p:ajax update="formSeg" listener=""/>
-                                </p:password>
-                                <p:message for="clave"/>
-                                <p:outputLabel value="#{bundle.labelnuevaClave}" for="clave" />  
+                        <h:form id="form">
+                            <p:growl showDetail="true"/>
+                            <p:inputText id="hidenT" style="visibility: hidden" value="#{usuarioController.selected.clave}"/>
+                            <h:panelGrid columns="3" cellspacing="30"> 
+                                <h:panelGroup>
+                                    <h:panelGrid>
+                                      
+                                        <p:outputLabel value="#{bundle.labelClaveActual}" for="claveAct" />  
+                                        <p:password id="claveAct" value="#{usuarioController.claveActual}"
+                                                    title="#{bundle.CreateUsuarioTitle_clave}" 
+                                                    required="true" 
+                                                    requiredMessage="#{bundle.createUsuarioClaveActualRequerida}"
+                                                    size="30"
+                                                    validator="paswordValidationActual"
+                                                    >
+                                        </p:password>
+                                        <p:message for="claveAct" id="mClaveAct"/>
+                                        
+                                    </h:panelGrid>
+                                </h:panelGroup>
 
-                                <p:password id="clave" value="#{usuarioController.claveActualUsuario}"
-                                            title="#{bundle.labelnuevaClave}" 
-                                            required="true" 
-                                            requiredMessage="#{bundle.CreateUsuarioRequiredMessage_clave}"
-                                            validator="paswordValidation" size="50"
-                                            /> 
                                 
-                                <p:message for="claveConf"/>
-                                <p:outputLabel value="#{bundle.labelConfirmarClave}" for="claveConf" />
-                                <p:password id="claveConf"  
-                                            title="#{bundle.CreateUsuarioTitle_clave}" 
-                                            required="true"
-                                            requiredMessage="#{bundle.CreateUsuarioRequiredMessage_clave}"
-                                            immediate="true" value="#{usuarioController.confirmarClave}" size="50"/>  
-                                
-                                <p:commandButton action="#{usuarioController.cambioClave}" value="#{bundle.EditUsuarioSaveLink}"/>          
+
+                                <h:panelGroup>
+                                    <h:panelGrid>
+                                        <p:outputLabel value="#{bundle.labelnuevaClave}" for="clave" />  
+                                        <p:password id="clave" value="#{usuarioController.claveActualUsuario}"
+                                                    title="#{bundle.labelnuevaClave}" 
+                                                    required="true" 
+                                                    requiredMessage="#{bundle.createUsuarioClaveNuevaRequerida}"
+                                                    validator="paswordValidationA" size="30"
+                                                    /> 
+                                        <p:message for="clave"/>
+                                    </h:panelGrid>
+                                </h:panelGroup>
+
+                                <h:panelGroup>
+                                    <h:panelGrid>
+                                        <p:outputLabel value="#{bundle.labelConfirmarClave}" for="claveConf" />
+                                        <p:password id="claveConf"  
+                                                    title="#{bundle.CreateUsuarioTitle_clave}" 
+                                                    required="true"
+                                                    requiredMessage="#{bundle.createUsuarioClaveRequrred}"
+                                                    immediate="true" value="#{usuarioController.confirmarClave}" size="30"/>  
+                                        <p:message for="claveConf"/>
+                                    </h:panelGrid>
+                                </h:panelGroup>
+
+                                <p:commandButton action="#{usuarioController.cambioClave}" value="#{bundle.EditUsuarioSaveLink}" ajax="true" update="form" style="width: 40%"/>          
                             </h:panelGrid>
                         </h:form>
                     </p:fieldset>

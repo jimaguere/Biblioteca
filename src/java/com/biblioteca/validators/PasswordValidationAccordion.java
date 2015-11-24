@@ -13,19 +13,18 @@ import javax.faces.validator.FacesValidator;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
-
 /**
  *
  * @author
  */
-@FacesValidator("paswordValidation") 
-public class PaswordValidation implements Validator {
-
+@FacesValidator("paswordValidationA") 
+public class PasswordValidationAccordion implements Validator{
+    
     @Override
     public void validate(FacesContext context, UIComponent component, Object value) 
             throws ValidatorException {   
     
-        UIComponent confirmarUi=context.getViewRoot().findComponent("form:claveConf");
+        UIComponent confirmarUi=context.getViewRoot().findComponent("accordion:form:claveConf");
         HtmlInputText inputText=(HtmlInputText)confirmarUi;
         if(!inputText.getValue().toString().equals(value.toString())){
              FacesMessage facesMessage =

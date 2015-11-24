@@ -172,6 +172,9 @@ public class UsuarioLoginControlador {
     }
 
     public boolean permisosPagina(String currentPage) {
+        if(currentPage.contains(ResourceBundle.getBundle("/Bundle").getString("contantePaginaPerfilEditar"))){
+            return true;
+        }
         if (this.usuarioSession.getUsuarioRolSoftwareList() == null) {
             return false;
         }
