@@ -217,6 +217,4 @@ public class Documento implements Serializable {
     public void setLogDescargasList(List<LogDescargas> logDescargasList) {
         this.logDescargasList = logDescargasList;
     }
-
-    
 }

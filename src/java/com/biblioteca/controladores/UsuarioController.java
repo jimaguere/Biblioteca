@@ -5,11 +5,13 @@ import com.biblioteca.controladores.util.PaginationHelper;
 import com.biblioteca.dao.UsuarioFacade;
 import com.biblioteca.entidad.Usuario;
 import java.io.Serializable;
+import java.security.MessageDigest;
 import java.util.ResourceBundle;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
@@ -27,6 +29,9 @@ public class UsuarioController implements Serializable {
     private boolean insertar;
     private boolean skip;
     private String confirmarClave;
+    private String claveActual;
+    private String claveActualUsuario;
+    private UsuarioLoginControlador usuarioLogin;
 
     public UsuarioController() {
     }
@@ -57,6 +62,22 @@ public class UsuarioController implements Serializable {
 
     private UsuarioFacade getFacade() {
         return ejbFacade;
+    }
+
+    public String getClaveActual() {
+        return claveActual;
+    }
+
+    public void setClaveActual(String claveActual) {
+        this.claveActual = claveActual;
+    }
+
+    public String getClaveActualUsuario() {
+        return claveActualUsuario;
+    }
+
+    public void setClaveActualUsuario(String claveActualUsuario) {
+        this.claveActualUsuario = claveActualUsuario;
     }
 
     public PaginationHelper getPagination() {
@@ -96,11 +117,13 @@ public class UsuarioController implements Serializable {
     }
 
     @PostConstruct
-    public String prepareCreate() {
+    public void prepareCreate() {
         this.insertar = true;
         current = new Usuario();
         selectedItemIndex = -1;
-        return "Create";
+        this.usuarioLogin = (UsuarioLoginControlador) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuarioLogin");
+        this.current = this.usuarioLogin.getUsuarioSession();
+
     }
 
     public String create() {
@@ -211,5 +234,34 @@ public class UsuarioController implements Serializable {
 
     public SelectItem[] getItemsAvailableSelectOne() {
         return JsfUtil.getSelectItems(ejbFacade.findAll(), true);
+    }
+
+    public void cambioClave() {
+        this.current.setClave(confirmarClave);
+        update();
+    }
+
+    public void validarClave() throws Exception {
+        if (!md5(claveActual).equals(current.getClave())) {
+            this.claveActual="";
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
+        }
+    }
+
+    private static String md5(String clear) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] b = md.digest(clear.getBytes());
+        int size = b.length;
+        StringBuilder h = new StringBuilder(size);
+        for (int i = 0; i < size; i++) {
+            int u = b[i] & 255;
+            if (u < 16) {
+                h.append("0").append(Integer.toHexString(u));
+            } else {
+                h.append(Integer.toHexString(u));
+            }
+        }
+
+        return h.toString();
     }
 }

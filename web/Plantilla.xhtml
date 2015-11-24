@@ -65,9 +65,15 @@
                         <div id="welcome">
                             <h1>
                                 <ui:insert name="title">  
-                                    <h:form>           
-                                        <p:commandLink value="#{bundle.cerrarSession}" 
-                                                       action="#{usuarioLogin.cerrarSession}" ajax="false"/>                      
+                                    <h:form>     
+                                        <h:panelGrid columns="4">
+                                            <p:commandLink value="#{bundle.editarUsuario}"  action="/usuario/Edit.xhtml"/>
+                                            <h:panelGroup/>
+                                            <h:panelGroup/>
+                                            <p:commandLink value="#{bundle.cerrarSession}" 
+                                                           action="#{usuarioLogin.cerrarSession}" ajax="false"/>   
+                                            
+                                        </h:panelGrid>
                                     </h:form>
                                 </ui:insert>
                             </h1>
