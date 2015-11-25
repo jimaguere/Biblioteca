@@ -187,6 +187,10 @@ public class RolSoftwareController implements Serializable {
             JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
         }
     }
+    
+    public void prepareDestroy(RolSoftware rol){
+        current=rol;
+    }
 
     public void destroy() {
         performDestroy();

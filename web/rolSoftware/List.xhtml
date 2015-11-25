@@ -37,7 +37,7 @@
                                              icon="ui-icon-search" title="#{bundle.titleEditar}"
                                              ajax="true" update="form"/>
                             <h:outputText value=" "/>
-                            <p:commandButton actionListener="#{rolSoftwareController.destroy}" 
+                            <p:commandButton actionListener="#{rolSoftwareController.prepareDestroy(item)}" 
                                              icon="ui-icon-circle-close"
                                              title="#{bundle.ListTipoDocumentoDestroyLink}"
                                              update="form" ajax="true"
