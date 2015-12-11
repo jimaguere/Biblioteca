@@ -6,6 +6,7 @@ package com.biblioteca.controladores.util;
 
 import com.biblioteca.controladores.UsuarioLoginControlador;
 import java.io.IOException;
+import java.util.ResourceBundle;
 import javax.faces.FacesException;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -32,8 +33,8 @@ public class DefaultPhaseListener implements PhaseListener {
 
         String currentPage = facesContext.getViewRoot().getViewId();
         boolean isLoginPage;
-
-        isLoginPage = (currentPage.lastIndexOf("index.xhtml") > -1)||(currentPage.lastIndexOf("template.xhtml") > -1);
+        System.out.println(currentPage);
+        isLoginPage = (currentPage.lastIndexOf("index.xhtml") > -1)||(currentPage.lastIndexOf("template.xhtml") > -1)||(currentPage.contains(ResourceBundle.getBundle("/Bundle").getString("nombreServlet")));
 
         if (isLoginPage) {
             HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(false);
