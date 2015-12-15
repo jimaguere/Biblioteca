@@ -75,9 +75,12 @@ public class RegistroController {
 
     public void create() {
         try {
+            this.selected.setCorreoElectronico(this.selected.getCorreoElectronico().trim());
             String rutaServlet = ResourceBundle.getBundle("/Bundle").getString("rutaServlet");
             Correo c = new Correo();
             this.selected.setClave(md5(this.selected.getClave()));
+            String usuarioEncrip=Aes.encriptar(this.selected.getCorreoElectronico()+"_"+this.selected.getClave());
+            usuarioEncrip=usuarioEncrip.replaceAll("=", "comodin");
             c.addDestino(this.selected.getCorreoElectronico());
             c.setAsunto(ResourceBundle.getBundle("/Bundle").getString("asuntoRegistro"));
             c.setMensaje("<p align='justify'>"
@@ -89,11 +92,12 @@ public class RegistroController {
                     + "<p align='justify'>"
                     + ResourceBundle.getBundle("/Bundle").getString("mensajeClick")
                     + "</p> <br/>"
-                    + "<form action='" + rutaServlet + "' method='post'>"
-                    + "<input type='hidden' value='" + Aes.encriptar(this.selected.getCorreoElectronico()) + "' name='usuario'/>"
-                    + "<input type='hidden' value='" + Aes.encriptar(this.selected.getClave()) + "' name='clave'/>"
-                    + "<input type='submit' value='Verificar dirección de correo electrónico'/>"
-                    + "</form>"
+                    + "<a href='"+rutaServlet+"?usuarioclave="+usuarioEncrip+"' target='ssssnew'>Verificar dirección de correo electrónico</a>"
+                 //   + "<form action='" + rutaServlet + "' method='post'>"
+                  //  + "<input type='hidden' value='" + Aes.encriptar(this.selected.getCorreoElectronico()) + "' name='usuario'/>"
+                //    + "<input type='hidden' value='" + Aes.encriptar(this.selected.getClave()) + "' name='clave'/>"
+                 //   + "<input type='submit' value='Verificar dirección de correo electrónico'/>"
+                  //  + "</form>"
                     + "<br/><br/>"
                     + "<p align='justify'>"
                     + ResourceBundle.getBundle("/Bundle").getString("mensajeCaducar")

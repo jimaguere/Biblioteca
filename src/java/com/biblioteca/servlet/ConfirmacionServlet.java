@@ -49,13 +49,19 @@ public class ConfirmacionServlet extends HttpServlet {
             out.println("<title>Servlet ConfirmacionServlet</title>");
             out.println("</head>");
             out.println("<body>");
+            
+            
+            String usuarioClave=Aes.desencriptar(request.getParameter("usuarioclave").replaceAll(" ", "+").replaceAll("comodin", "="));
+            String vectorUsu[]=usuarioClave.split("_");
 
-            String nomUsuario = Aes.desencriptar(request.getParameter("usuario"));
-            String claUsuario = Aes.desencriptar(request.getParameter("clave"));
-
+            String nomUsuario = vectorUsu[0];
+            String clave=vectorUsu[1];
             Usuario usuario = ejbFacade.find(nomUsuario);
             if (usuario != null) {
-                if (usuario.getClave().equals(claUsuario)) {
+
+                                
+                if (usuario.getClave().equals(clave)) {
+                    System.out.println("eq");
                     if (usuario.getEstado()
                             == Integer.parseInt(ResourceBundle.getBundle("/Bundle").getString("constanteUsuarioEstadoInavito"))) {
                         Calendar calendar = Calendar.getInstance();

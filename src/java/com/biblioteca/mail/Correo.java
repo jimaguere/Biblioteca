@@ -106,8 +106,7 @@ public class Correo {
                 + "<meta content='text/html; charset=iso-8859-1'/>"
                 + "<body>"
                 + ""
-                + "<a href='https://mail.udenar.edu.co/owa/redir.aspx?C=79174882bfd7410b941ae4d7148e8b81&amp;URL=https%3a%2f%2fprofile.oracle.com%2fmyprofile%2faccount%2fsecure%2fverification.jspx%3fkey%3d5B734912934AA23CBEFC71E08AB0A962136A0AAFBB551B213C8B5C61287AE3F003AAF12A8976DE159A749BF43A43CEFDCB69E423B36F9E3CE0CA22573E871F58' target='_blank'>"
-                + "Verificar dirección de correo electrónico</a>'"
+                + "HOLA"
                 + "</body></html>");
         c.enviar();
         System.out.println("/documento/List.xhtml".contains("/documento/List"));

@@ -14,7 +14,6 @@ public class Aes {
         'I', 's', 'A', 'S', 'e', 'c', 'r', 'e', 't', 'K', 'e', 'y'};
 
     public static String encriptar(String valueToEnc) throws Exception {
-
         Key key = generateKey();
         Cipher c = Cipher.getInstance(ALGORITHM);
         c.init(Cipher.ENCRYPT_MODE, key);
@@ -24,7 +23,6 @@ public class Aes {
     }
 
     public static String desencriptar(String encryptedValue) throws Exception {
-
         Key key = generateKey();
         Cipher c = Cipher.getInstance(ALGORITHM);
         c.init(Cipher.DECRYPT_MODE, key);
@@ -40,14 +38,8 @@ public class Aes {
     }
 
     public static void main(String[] args) throws Exception {
-        String password = "jimaguere@gmail.com";
-
-        String passwordEnc = Aes.encriptar(password.trim());
-        String passwordDec = Aes.desencriptar(passwordEnc.trim());
-        
-        System.out.println("Original : " + password);
-        System.out.println("Encriptado : " + passwordEnc);
-        System.out.println("Desencriptado : " + passwordDec);
+        String passwordEnc = Aes.encriptar("admin");
+        System.out.println("Original : " + passwordEnc);
         Calendar calendar = Calendar.getInstance();
         Date fecha=new Date();
         calendar.setTime(fecha); // Configuramos la fecha que se recibe
