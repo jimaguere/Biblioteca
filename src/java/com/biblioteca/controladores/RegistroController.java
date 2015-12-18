@@ -17,6 +17,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -64,23 +66,26 @@ public class RegistroController {
         this.mensaje = mensaje;
     }
 
-    
     @PostConstruct
     public void prepareCreate() {
         selected = new Usuario();
         confirmarClave = "";
-        mensaje=false;
+        mensaje = false;
     }
-    
 
     public void create() {
         try {
+            HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+            String url = req.getRequestURL().toString();
+
+            String rutaServlet = url.substring(0, url.length() - req.getRequestURI().length()) + req.getContextPath() +  ResourceBundle.getBundle("/Bundle").getString("nombreServletNotValid");
+
             this.selected.setCorreoElectronico(this.selected.getCorreoElectronico().trim());
-            String rutaServlet = ResourceBundle.getBundle("/Bundle").getString("rutaServlet");
+     
             Correo c = new Correo();
             this.selected.setClave(md5(this.selected.getClave()));
-            String usuarioEncrip=Aes.encriptar(this.selected.getCorreoElectronico()+"_"+this.selected.getClave());
-            usuarioEncrip=usuarioEncrip.replaceAll("=", "comodin");
+            String usuarioEncrip = Aes.encriptar(this.selected.getCorreoElectronico() + "_" + this.selected.getClave());
+            usuarioEncrip = usuarioEncrip.replaceAll("=", "comodin");
             c.addDestino(this.selected.getCorreoElectronico());
             c.setAsunto(ResourceBundle.getBundle("/Bundle").getString("asuntoRegistro"));
             c.setMensaje("<p align='justify'>"
@@ -92,12 +97,7 @@ public class RegistroController {
                     + "<p align='justify'>"
                     + ResourceBundle.getBundle("/Bundle").getString("mensajeClick")
                     + "</p> <br/>"
-                    + "<a href='"+rutaServlet+"?usuarioclave="+usuarioEncrip+"' target='ssssnew'>Verificar dirección de correo electrónico</a>"
-                 //   + "<form action='" + rutaServlet + "' method='post'>"
-                  //  + "<input type='hidden' value='" + Aes.encriptar(this.selected.getCorreoElectronico()) + "' name='usuario'/>"
-                //    + "<input type='hidden' value='" + Aes.encriptar(this.selected.getClave()) + "' name='clave'/>"
-                 //   + "<input type='submit' value='Verificar dirección de correo electrónico'/>"
-                  //  + "</form>"
+                    + "<a href='" + rutaServlet + "?usuarioclave=" + usuarioEncrip + "' target='ssssnew'>Verificar dirección de correo electrónico</a>"
                     + "<br/><br/>"
                     + "<p align='justify'>"
                     + ResourceBundle.getBundle("/Bundle").getString("mensajeCaducar")
@@ -118,7 +118,7 @@ public class RegistroController {
             FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, "", ResourceBundle.getBundle("/Bundle").getString("registroExitoso"));
             FacesContext.getCurrentInstance().addMessage(null, facesMsg);
             prepareCreate();
-            mensaje=true;
+            mensaje = true;
         } catch (Exception e) {
             FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", ResourceBundle.getBundle("/Bundle").getString("registroError"));
             FacesContext.getCurrentInstance().addMessage(null, facesMsg);
