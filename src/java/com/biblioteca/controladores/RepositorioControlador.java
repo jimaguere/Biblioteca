@@ -7,6 +7,7 @@ package com.biblioteca.controladores;
 
 import com.biblioteca.clases.IndexarDocumento;
 import com.biblioteca.dao.DocumentoFacade;
+import java.io.File;
 import java.text.ParseException;
 import java.util.ResourceBundle;
 import javax.annotation.PostConstruct;
@@ -57,7 +58,7 @@ public class RepositorioControlador {
     public void crearRepositorio() {
         try {
             IndexarDocumento index = new IndexarDocumento();
-            index.crearIndice(rutaOntologia);
+            index.crearIndice(rutaOntologia+ResourceBundle.getBundle("/Bundle").getString("constanteRutaIndice"));
             index.cerrar();
             this.repositorio = true;
             FacesContext.getCurrentInstance().
