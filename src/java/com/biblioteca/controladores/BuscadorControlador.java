@@ -181,8 +181,15 @@ public class BuscadorControlador {
     }
 
     public void actualizarTipoDocumento() {
+        List<TipoDocumentoMetaDato> metaDatos=new ArrayList<TipoDocumentoMetaDato>();
         if (tipoDocumento.getIdTipoDoc().intValue() != -1) {
             tipoDocumento = tipoDocumentoEjbFacade.find(tipoDocumento.getIdTipoDoc());
+            for(TipoDocumentoMetaDato tD : tipoDocumento.getTipoDocumentoMetaDatoList()){
+                if(tD.getIdMetaDato().getMetaDatoIr()){
+                    metaDatos.add(tD);
+                }
+            }
+            tipoDocumento.setTipoDocumentoMetaDatoList(metaDatos);
         } else {
             tipoDocumento.setTipoDocumentoMetaDatoList(new ArrayList<TipoDocumentoMetaDato>());
         }
