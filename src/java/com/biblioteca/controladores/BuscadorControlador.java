@@ -10,12 +10,14 @@ import com.biblioteca.dao.LogConsultaFacade;
 import com.biblioteca.dao.LogDescargasFacade;
 import com.biblioteca.dao.MetaDatoFacade;
 import com.biblioteca.dao.TipoDocumentoFacade;
+import com.biblioteca.dao.UsuarioFacade;
 import com.biblioteca.entidad.Documento;
 import com.biblioteca.entidad.LogConsulta;
 import com.biblioteca.entidad.LogDescargas;
 import com.biblioteca.entidad.MetaDato;
 import com.biblioteca.entidad.TipoDocumento;
 import com.biblioteca.entidad.TipoDocumentoMetaDato;
+import com.biblioteca.entidad.Usuario;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -86,6 +88,7 @@ public class BuscadorControlador {
     private LogDescargasFacade logDescargaEjbFacade;
     @EJB
     private LogConsultaFacade logConsultaEjbFacade;
+
 
     public String getTipoBusqueda() {
         return tipoBusqueda;
@@ -480,9 +483,11 @@ public class BuscadorControlador {
         this.soporte="";
     }
     
-    public void apriori() throws Exception{
+    public void apriori() throws Exception{    
         String[] entrada={"/home/and/NetBeansProjects/Biblioteca/prueba.dat",soporte};
         Apriori ap = new Apriori(entrada);
+        List<LogDescargas> descargas=logDescargaEjbFacade.findDescargasOrderBy();
+        
     }
 
 }
