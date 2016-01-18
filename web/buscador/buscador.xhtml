@@ -158,8 +158,10 @@
 
                         <p:commandButton value="#{bundle.actionDescargarDocumento}" 
                                          ajax="false"
+                                         update="form"
                                          rendered="#{buscadorControlador.seleccionDocumento}">
                             <p:fileDownload value="#{buscadorControlador.file}" />
+                            
                         </p:commandButton>
                         
                         <p:commandButton value="#{bundle.actionDocuemntosRelacionados}"
@@ -167,12 +169,36 @@
                                          rendered="#{buscadorControlador.seleccionDocumento}"
                                          ajax="true" update="form"
                             />
+                        
+                        <p:commandButton value="#{bundle.actionDescargasRelacionadas}"
+                                         ajax="true"
+                                         update="form"
+                                         rendered="#{buscadorControlador.seleccionDocumento}"
+                                         oncomplete="PF('dlg2').show();"
+                                         actionListener="#{buscadorControlador.modalSoporte}"
+                                         />
 
                         <p:commandButton value="#{bundle.actionVolverConsulta}"
                                          rendered="#{buscadorControlador.seleccionDocumento}"
                                          ajax="true"
                                          update="form"
                                          actionListener="#{buscadorControlador.regresar}"/>
+                        
+                        <p:dialog header="#{bundle.panelModalBuscador}" widgetVar="dlg2" modal="false" height="100" >
+                            <h:panelGrid columns="2" rendered="#{buscadorControlador.descarga}">
+                                <p:outputLabel for="sop" value="#{bundle.labelSoporteBuscador}"/>
+                                <p:inputText value="#{buscadorControlador.soporte}" id="sop"/>
+                                <h:panelGroup/>
+                                <p:commandButton value="#{bundle.buttonReglasBuscador}"
+                                                 ajax="true" 
+                                                 update="form"
+                                                 actionListener="#{buscadorControlador.apriori}"/>
+                            </h:panelGrid>
+                            <h:panelGrid columns="1" rendered="#{!buscadorControlador.descarga}">
+                                <h:outputText value="#{bundle.labelDescargaNo}"/>
+                            </h:panelGrid>
+
+                        </p:dialog> 
                         
                         
                         <p:dataGrid value="#{buscadorControlador.documentoSeleccionado.documentosRelacionados}" 

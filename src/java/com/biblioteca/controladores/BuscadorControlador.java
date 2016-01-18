@@ -4,6 +4,7 @@
  */
 package com.biblioteca.controladores;
 
+import com.biblioteca.clases.Apriori;
 import com.biblioteca.dao.DocumentoFacade;
 import com.biblioteca.dao.LogConsultaFacade;
 import com.biblioteca.dao.LogDescargasFacade;
@@ -73,6 +74,8 @@ public class BuscadorControlador {
     private UsuarioLoginControlador usuario;
     private boolean relacionados;
     private String busquedaRelacionada;
+    private boolean descarga;
+    private String soporte;
     @EJB
     private TipoDocumentoFacade tipoDocumentoEjbFacade;
     @EJB
@@ -169,6 +172,7 @@ public class BuscadorControlador {
 
         file = new DefaultStreamedContent(stream, "application/pdf", "doc.pdf");
         logDescargaEjbFacade.create(logD);
+        this.descarga=true;
         return file;
     }
 
@@ -178,6 +182,14 @@ public class BuscadorControlador {
 
     public void setRelacionados(boolean relacionados) {
         this.relacionados = relacionados;
+    }
+
+    public boolean isDescarga() {
+        return descarga;
+    }
+
+    public void setDescarga(boolean descarga) {
+        this.descarga = descarga;
     }
 
     public void actualizarTipoDocumento() {
@@ -206,6 +218,7 @@ public class BuscadorControlador {
 
     @PostConstruct
     public void iniciar() throws IOException {
+        this.descarga=false;
         this.btBusqueda = false;
         this.seleccionDocumento = false;
         this.repositorio = (RepositorioControlador) FacesContext.getCurrentInstance().getExternalContext().getApplicationMap().get("repositorioControlador");
@@ -235,7 +248,7 @@ public class BuscadorControlador {
     public List<String> completeGeneral(String query) {
         query = query.replaceAll("'", "");
         List<String> resul = new ArrayList<String>();
-        List<Object[]> listaWords;
+        List<Object[]> listaWords=new ArrayList<Object[]>();
         String[] listaTitulo = query.split(" ");
         String res = "";
         if (listaTitulo.length == 0) {
@@ -248,7 +261,7 @@ public class BuscadorControlador {
                 res = res + " " + listaTitulo[i];
             }
         }
-        listaWords = this.documentoEjbFacade.findAllJaroWordsComplet(listaTitulo[listaTitulo.length - 1]);
+        //listaWords = this.documentoEjbFacade.findAllJaroWordsComplet(listaTitulo[listaTitulo.length - 1]);
         if (listaWords.isEmpty()) {
             return resul;
         }
@@ -335,6 +348,7 @@ public class BuscadorControlador {
 
     @SuppressWarnings("UnusedAssignment")
     public void buscar() throws ParseException, IOException {
+        this.descarga=false;
         this.relacionados = false;
         String cont;
         this.busquedaRelacionada = this.cadenaBusqueda.trim();
@@ -398,6 +412,7 @@ public class BuscadorControlador {
         this.documentoSeleccionado = this.documentoEjbFacade.find(doc.getIdDocumento());
         this.seleccionDocumento = true;
         this.relacionados = false;
+        this.descarga=false;
         stream = new FileInputStream(repositorio.getRutaOntologia() + this.documentoSeleccionado.getIdDocumento() + ".pdf");
         file = new DefaultStreamedContent(stream, "application/pdf", "doc.pdf");
         this.logD = new LogDescargas();
@@ -414,6 +429,7 @@ public class BuscadorControlador {
     public void regresar() {
         this.seleccionDocumento = false;
         this.relacionados = false;
+        this.descarga=false;
     }
 
     public void relacionarDocumentos() throws IOException, ParseException {
@@ -451,4 +467,22 @@ public class BuscadorControlador {
             this.documentoSeleccionado.getDocumentosRelacionados().add(documento);
         }
     }
+
+    public String getSoporte() {
+        return soporte;
+    }
+
+    public void setSoporte(String soporte) {
+        this.soporte = soporte;
+    }
+    
+    public void modalSoporte(){
+        this.soporte="";
+    }
+    
+    public void apriori() throws Exception{
+        String[] entrada={"/home/and/NetBeansProjects/Biblioteca/prueba.dat",soporte};
+        Apriori ap = new Apriori(entrada);
+    }
+
 }

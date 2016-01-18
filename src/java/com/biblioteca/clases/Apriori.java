@@ -12,7 +12,7 @@ public class Apriori extends Observable {
 
 
     public static void main(String[] args) throws Exception {
-        String[] entrada={"/home/mateo/NetBeansProjects/Biblioteca/prueba.dat","2"};
+        String[] entrada={"/home/and/NetBeansProjects/Biblioteca/prueba.dat","2"};
         Apriori ap = new Apriori(entrada);
     }
 
