@@ -8,6 +8,8 @@ import java.io.*;
 import java.util.*;
 
 public class Apriori extends Observable {
+    
+    
 
     public static void main(String[] args) throws Exception {
         String[] entrada = {"/home/and/NetBeansProjects/Biblioteca/prueba.dat", "2"};
@@ -40,6 +42,8 @@ public class Apriori extends Observable {
     
     private List<Object[]>logs;
     private ArrayList<String> buferT;
+    
+    private List<ItemSetFrequenteL> reglasL;
 
     /**
      * This is the main interface to use this class as a library
@@ -58,11 +62,13 @@ public class Apriori extends Observable {
      * min support (e.g. 0.8 for 80%)
      */
     public Apriori(String[] args) throws Exception {
+        this.reglasL=new ArrayList<ItemSetFrequenteL>();
         configure(args);
         go();
     }
     
     public Apriori(List<Object[]> logs,double sop,int numitems) throws Exception{
+        this.reglasL=new ArrayList<ItemSetFrequenteL>();
         this.logs=logs;
         this.numItems=numitems;
         configureUsuario(sop);
@@ -84,7 +90,7 @@ public class Apriori extends Observable {
 
             if (itemsets.size() != 0) {
                 nbFrequentSets += itemsets.size();
-                log("Encontrados " + itemsets.size() + " frequent itemsets de tamanio " + itemsetNumber + " (con soporte " + (minSup * 100) + "%)");;
+                log("Encontrados " + itemsets.size() + " frequent itemsets de tamanio " + itemsetNumber + " (con soporte " + (minSup * 100) + "%)");
                 createNewItemsetsFromPreviousOnes();
             }
 
@@ -138,6 +144,7 @@ public class Apriori extends Observable {
             this.setChanged();
             notifyObservers(itemset);
         } else {
+            reglasL.add(new ItemSetFrequenteL(Arrays.toString(itemset), ((support / (double) numTransactions)), support));
             System.out.println(Arrays.toString(itemset) + "  (" + ((support / (double) numTransactions)) + " " + support + ")");
         }
     }
