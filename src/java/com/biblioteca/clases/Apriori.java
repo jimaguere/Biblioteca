@@ -114,7 +114,7 @@ public class Apriori extends Observable {
 
             calculateFrequentItemsets();
 
-            if (itemsets.size() != 0) {
+            if (!itemsets.isEmpty()) {
                 nbFrequentSets += itemsets.size();
                 log("Encontrados " + itemsets.size() + " frequent itemsets de tamanio " + itemsetNumber + " (con soporte " + (minSup * 100) + "%)");;
                 createNewItemsetsFromPreviousOnes();
@@ -154,7 +154,6 @@ public class Apriori extends Observable {
     private void configureUsuario(double minsup) throws Exception {
         // setting transafile
         this.minSup=minsup;
-      
         String antT="";
         buferT=new ArrayList<String>();
         numTransactions=0;
@@ -200,7 +199,6 @@ public class Apriori extends Observable {
 
             // boolean[] trans = extractEncoding1(data_in.readLine());
             String line = this.buferT.get(i);
-            System.out.println(line);
             line2booleanArray(line, trans);
 
             // check each candidate
