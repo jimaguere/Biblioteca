@@ -37,6 +37,9 @@ public class Apriori extends Observable {
      * by default, Apriori is used with the command line interface
      */
     private boolean usedAsLibrary = false;
+    
+    private List<Object[]>logs;
+    private ArrayList<String> buferT;
 
     /**
      * This is the main interface to use this class as a library
@@ -57,6 +60,42 @@ public class Apriori extends Observable {
     public Apriori(String[] args) throws Exception {
         configure(args);
         go();
+    }
+    
+    public Apriori(List<Object[]> logs,double sop,int numitems) throws Exception{
+        this.logs=logs;
+        this.numItems=numitems;
+        configureUsuario(sop);
+        goUsuario();
+    }
+    
+    private void goUsuario() throws Exception {
+        //start timer
+        long start = System.currentTimeMillis();
+
+        // first we generate the candidates of size 1
+        createItemsetsOfSize1();
+        int itemsetNumber = 1; //the current itemset being looked at
+        int nbFrequentSets = 0;
+
+        while (itemsets.size() > 0) {
+
+            calculateFrequentItemsetsUsuario();
+
+            if (itemsets.size() != 0) {
+                nbFrequentSets += itemsets.size();
+                log("Encontrados " + itemsets.size() + " frequent itemsets de tamanio " + itemsetNumber + " (con soporte " + (minSup * 100) + "%)");;
+                createNewItemsetsFromPreviousOnes();
+            }
+
+            itemsetNumber++;
+        }
+
+        //display the execution time
+        long end = System.currentTimeMillis();
+        log("tiempo ejecucion: " + ((double) (end - start) / 1000) + " segundos.");
+        log("Encontrados " + nbFrequentSets + " frequents sets para soporte " + (minSup * 100) + "% (absolute " + Math.round(numTransactions * minSup) + ")");
+        log("Ok");
     }
 
     /**
@@ -112,43 +151,30 @@ public class Apriori extends Observable {
         }
     }
 
-    private void configureUsuario(String[] args) throws Exception {
+    private void configureUsuario(double minsup) throws Exception {
         // setting transafile
-        if (args.length != 0) {
-            transaFile = args[0];
-        } else {
-            transaFile = "/home/mateo/NetBeansProjects/Biblioteca/prueba.dat"; // default
-        }
-        // setting minsupport
-        if (args.length >= 2) {
-            minSup = (Double.valueOf(args[1]).doubleValue());
-        } else {
-            minSup = .8;// by default
-        }    	//if (minSup>1 || minSup<0) throw new Exception("minimo Sop: al valor");
-
-
-        // going thourgh the file to compute numItems and  numTransactions
-        numItems = 0;
-        numTransactions = 0;
-        BufferedReader data_in = new BufferedReader(new FileReader(transaFile));
-        while (data_in.ready()) {
-            String line = data_in.readLine();
-            if (line.matches("\\s*")) {
-                continue; // be friendly with empty lines
+        this.minSup=minsup;
+      
+        String antT="";
+        buferT=new ArrayList<String>();
+        numTransactions=0;
+        for(int i=0;i<logs.size();i++){ 
+            if(i==0){
+                buferT.add(logs.get(i)[1].toString());
+                antT=logs.get(i)[0].toString();
+                continue;
             }
-            numTransactions++;
-            StringTokenizer t = new StringTokenizer(line, " ");
-            while (t.hasMoreTokens()) {
-                int x = Integer.parseInt(t.nextToken());
-                //log(x);
-                if (x + 1 > numItems) {
-                    numItems = x + 1;
-                }
+            if(antT.equals(logs.get(i)[0].toString())){
+                String antB=buferT.get(buferT.size()-1)+" "+logs.get(i)[1].toString();
+                buferT.set(buferT.size()-1, antB);
+            }else{
+                buferT.add(logs.get(i)[1].toString());
+                antT=logs.get(i)[0].toString();
             }
         }
-        minSup = minSup / numTransactions;
+        numTransactions=buferT.size();
+        minSup = minSup / numTransactions; 
         outputConfig();
-
     }
     
      private void calculateFrequentItemsetsUsuario() throws Exception {
@@ -162,7 +188,9 @@ public class Apriori extends Observable {
 
 
         // load the transaction file
-        BufferedReader data_in = new BufferedReader(new InputStreamReader(new FileInputStream(transaFile)));
+        
+        
+        //BufferedReader data_in = new BufferedReader(new InputStreamReader(new FileInputStream(transaFile)));
         
 
         boolean[] trans = new boolean[numItems];
@@ -171,7 +199,8 @@ public class Apriori extends Observable {
         for (int i = 0; i < numTransactions; i++) {
 
             // boolean[] trans = extractEncoding1(data_in.readLine());
-            String line = data_in.readLine();
+            String line = this.buferT.get(i);
+            System.out.println(line);
             line2booleanArray(line, trans);
 
             // check each candidate
@@ -197,7 +226,7 @@ public class Apriori extends Observable {
 
         }
 
-        data_in.close();
+       // data_in.close();
 
         for (int i = 0; i < itemsets.size(); i++) {
             // if the count% is larger than the minSup%, add to the candidate to
@@ -348,8 +377,10 @@ public class Apriori extends Observable {
         while (stFile.hasMoreTokens()) {
 
             int parsedVal = Integer.parseInt(stFile.nextToken());
+
             trans[parsedVal] = true; //if it is not a 0, assign the value to true
         }
+   
     }
 
     /**

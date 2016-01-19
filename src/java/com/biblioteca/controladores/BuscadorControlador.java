@@ -484,9 +484,11 @@ public class BuscadorControlador {
     }
     
     public void apriori() throws Exception{    
-        String[] entrada={"/home/and/NetBeansProjects/Biblioteca/prueba.dat",soporte};
-        Apriori ap = new Apriori(entrada);
-        List<LogDescargas> descargas=logDescargaEjbFacade.findDescargasOrderBy();
+       /* String[] entrada={"/home/and/NetBeansProjects/Biblioteca/prueba.dat",soporte};
+        Apriori ap = new Apriori(entrada);*/
+        List<Object[]> descargas=logDescargaEjbFacade.transaccionesDescargas();
+        int items=logDescargaEjbFacade.maxIntems();
+        Apriori ap=new Apriori(descargas, Double.parseDouble(soporte),items);
         
     }
 
