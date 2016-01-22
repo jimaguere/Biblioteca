@@ -7,6 +7,7 @@ package com.biblioteca.controladores;
 import com.biblioteca.clases.Apriori;
 import com.biblioteca.clases.ReglaDto;
 import com.biblioteca.clases.ReglasAsociacion;
+import com.biblioteca.controladores.util.JsfUtil;
 import com.biblioteca.dao.DocumentoFacade;
 import com.biblioteca.dao.LogConsultaFacade;
 import com.biblioteca.dao.LogDescargasFacade;
@@ -506,7 +507,11 @@ public class BuscadorControlador {
         Apriori ap = new Apriori(descargas, Double.parseDouble(soporte), items);
         ra = new ReglasAsociacion(ap, Double.parseDouble("0.7"));
         ra.generarReglas();
-        generarConclusionRegla();
+        if(!ra.getReglasFuertes().isEmpty()){
+            generarConclusionRegla();
+        }else{
+             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("usuarioValNoRule"));
+        }
     }
 
     public void generarConclusionRegla() throws JRException {

@@ -214,9 +214,6 @@ public class Apriori extends Observable {
         }
         numTransactions=buferT.size();
         minSup = minSup / numTransactions; 
-        for(int i=0;i<buferT.size();i++){
-            System.out.println(buferT.get(i));
-        }
         outputConfig();
     }
     
