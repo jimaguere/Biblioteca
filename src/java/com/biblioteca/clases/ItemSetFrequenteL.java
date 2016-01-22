@@ -14,6 +14,10 @@ public class ItemSetFrequenteL {
     private double prob;
     private int soporte;
 
+    
+    
+    
+
     public ItemSetFrequenteL(String l, double prob, int soporte) {
         this.l = l;
         this.prob = prob;

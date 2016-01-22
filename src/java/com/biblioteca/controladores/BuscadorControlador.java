@@ -5,27 +5,30 @@
 package com.biblioteca.controladores;
 
 import com.biblioteca.clases.Apriori;
+import com.biblioteca.clases.ReglaDto;
+import com.biblioteca.clases.ReglasAsociacion;
 import com.biblioteca.dao.DocumentoFacade;
 import com.biblioteca.dao.LogConsultaFacade;
 import com.biblioteca.dao.LogDescargasFacade;
 import com.biblioteca.dao.MetaDatoFacade;
 import com.biblioteca.dao.TipoDocumentoFacade;
-import com.biblioteca.dao.UsuarioFacade;
 import com.biblioteca.entidad.Documento;
 import com.biblioteca.entidad.LogConsulta;
 import com.biblioteca.entidad.LogDescargas;
 import com.biblioteca.entidad.MetaDato;
 import com.biblioteca.entidad.TipoDocumento;
 import com.biblioteca.entidad.TipoDocumentoMetaDato;
-import com.biblioteca.entidad.Usuario;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -88,7 +91,7 @@ public class BuscadorControlador {
     private LogDescargasFacade logDescargaEjbFacade;
     @EJB
     private LogConsultaFacade logConsultaEjbFacade;
-
+    private ReglasAsociacion ra;
 
     public String getTipoBusqueda() {
         return tipoBusqueda;
@@ -175,7 +178,7 @@ public class BuscadorControlador {
 
         file = new DefaultStreamedContent(stream, "application/pdf", "doc.pdf");
         logDescargaEjbFacade.create(logD);
-        this.descarga=true;
+        this.descarga = true;
         return file;
     }
 
@@ -196,11 +199,11 @@ public class BuscadorControlador {
     }
 
     public void actualizarTipoDocumento() {
-        List<TipoDocumentoMetaDato> metaDatos=new ArrayList<TipoDocumentoMetaDato>();
+        List<TipoDocumentoMetaDato> metaDatos = new ArrayList<TipoDocumentoMetaDato>();
         if (tipoDocumento.getIdTipoDoc().intValue() != -1) {
             tipoDocumento = tipoDocumentoEjbFacade.find(tipoDocumento.getIdTipoDoc());
-            for(TipoDocumentoMetaDato tD : tipoDocumento.getTipoDocumentoMetaDatoList()){
-                if(tD.getIdMetaDato().getMetaDatoIr()){
+            for (TipoDocumentoMetaDato tD : tipoDocumento.getTipoDocumentoMetaDatoList()) {
+                if (tD.getIdMetaDato().getMetaDatoIr()) {
                     metaDatos.add(tD);
                 }
             }
@@ -221,7 +224,7 @@ public class BuscadorControlador {
 
     @PostConstruct
     public void iniciar() throws IOException {
-        this.descarga=false;
+        this.descarga = false;
         this.btBusqueda = false;
         this.seleccionDocumento = false;
         this.repositorio = (RepositorioControlador) FacesContext.getCurrentInstance().getExternalContext().getApplicationMap().get("repositorioControlador");
@@ -251,7 +254,7 @@ public class BuscadorControlador {
     public List<String> completeGeneral(String query) {
         query = query.replaceAll("'", "");
         List<String> resul = new ArrayList<String>();
-        List<Object[]> listaWords=new ArrayList<Object[]>();
+        List<Object[]> listaWords = new ArrayList<Object[]>();
         String[] listaTitulo = query.split(" ");
         String res = "";
         if (listaTitulo.length == 0) {
@@ -351,7 +354,7 @@ public class BuscadorControlador {
 
     @SuppressWarnings("UnusedAssignment")
     public void buscar() throws ParseException, IOException {
-        this.descarga=false;
+        this.descarga = false;
         this.relacionados = false;
         String cont;
         this.busquedaRelacionada = this.cadenaBusqueda.trim();
@@ -415,7 +418,7 @@ public class BuscadorControlador {
         this.documentoSeleccionado = this.documentoEjbFacade.find(doc.getIdDocumento());
         this.seleccionDocumento = true;
         this.relacionados = false;
-        this.descarga=false;
+        this.descarga = false;
         stream = new FileInputStream(repositorio.getRutaOntologia() + this.documentoSeleccionado.getIdDocumento() + ".pdf");
         file = new DefaultStreamedContent(stream, "application/pdf", "doc.pdf");
         this.logD = new LogDescargas();
@@ -432,7 +435,7 @@ public class BuscadorControlador {
     public void regresar() {
         this.seleccionDocumento = false;
         this.relacionados = false;
-        this.descarga=false;
+        this.descarga = false;
     }
 
     public void relacionarDocumentos() throws IOException, ParseException {
@@ -466,7 +469,7 @@ public class BuscadorControlador {
                     documento.setMetaDatosDocumentos(documento.getMetaDatosDocumentos() + "\n" + index.stringValue());
                 }
             }
-                          
+
             this.documentoSeleccionado.getDocumentosRelacionados().add(documento);
         }
     }
@@ -478,18 +481,70 @@ public class BuscadorControlador {
     public void setSoporte(String soporte) {
         this.soporte = soporte;
     }
-    
-    public void modalSoporte(){
-        this.soporte="";
-    }
-    
-    public void apriori() throws Exception{    
-       /* String[] entrada={"/home/and/NetBeansProjects/Biblioteca/prueba.dat",soporte};
-        Apriori ap = new Apriori(entrada);*/
-        List<Object[]> descargas=logDescargaEjbFacade.transaccionesDescargas();
-        int items=logDescargaEjbFacade.maxIntems();
-        Apriori ap=new Apriori(descargas, Double.parseDouble(soporte),items);
-        
+
+    public void modalSoporte() {
+        this.soporte = "";
     }
 
+    public ReglasAsociacion getRa() {
+        return ra;
+    }
+
+    public void setRa(ReglasAsociacion ra) {
+        this.ra = ra;
+    }
+
+    public void apriori() throws Exception {
+        /* String[] entrada={"/home/and/NetBeansProjects/Biblioteca/prueba.dat",soporte};
+         Apriori ap = new Apriori(entrada);*/
+        List<Object[]> descargas = logDescargaEjbFacade.transaccionesDescargas();
+        int items = logDescargaEjbFacade.maxIntems();
+        Apriori ap = new Apriori(descargas, Double.parseDouble(soporte), items);
+
+        ra = new ReglasAsociacion(ap, Double.parseDouble("0.6"));
+   
+        ra.generarReglas();
+
+        for (int i = 0; i < ra.getReglasFuertes().size(); i++) {
+
+            System.out.println(ra.getReglasFuertes().get(i).getL()+"=>"+ra.getReglasFuertes().get(i).getA()+" "+ra.getReglasFuertes().get(i).getSoporte());
+        }
+        generarConclusionRegla();
+
+    }
+
+    public void generarConclusionRegla() {
+        for (int j = 0; j < ra.getReglasFuertes().size(); j++) {
+            ReglaDto reglaFuerte = ra.getReglasFuertes().get(j);
+
+            String conclusion = ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " +String.format("%.2g%n", (reglaFuerte.getSoporte() * 100)) + "% "
+                    + ResourceBundle.getBundle("/Bundle").getString("usuariosAprio");
+            String[] itemL = reglaFuerte.getL().replaceAll("\\[", "").replaceAll("]", "").split(",");
+      
+            System.out.println(Arrays.toString(itemL).toString());
+            for (int i = 0; i < itemL.length; i++) {
+                System.out.println(itemL[i]);
+                String idDoc=itemL[i].replaceAll("\\[", "").replaceAll("]", "").trim();
+                Integer idD=Integer.parseInt(idDoc);
+                Documento doc = documentoEjbFacade.finById(idD);
+                System.out.println("ok1");
+                if(doc==null){
+                    System.out.println("null");
+                }else{
+                    System.out.println(doc.getMetaDatosValor());
+                }
+                if (i < itemL.length - 1) {
+                    conclusion = conclusion + " " + doc.getMetaDatosValor() + " ^ ";
+                } else {
+                    conclusion = conclusion + " " + doc.getMetaDatosValor();
+                }
+            }
+            Documento doc = documentoEjbFacade.finById(Integer.parseInt(reglaFuerte.getA().trim()));
+            conclusion = conclusion + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioTam") +" "+ doc.getMetaDatosValor()
+                    + ". " + ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " +String.format("%.2g%n", (reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100))+"% "
+                    + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDes") + " " + (reglaFuerte.getL().split(",").length + 1) + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDicNum");
+            ra.getReglasFuertes().get(j).setConclusion(conclusion);
+            System.out.println(ra.getReglasFuertes().get(j).getConclusion());
+        }
+    }
 }

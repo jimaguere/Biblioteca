@@ -8,6 +8,14 @@ import java.io.*;
 import java.util.*;
 
 public class Apriori extends Observable {
+
+    public List<ItemSetFrequenteL> getReglasL() {
+        return reglasL;
+    }
+
+    public void setReglasL(List<ItemSetFrequenteL> reglasL) {
+        this.reglasL = reglasL;
+    }
     
     
 
@@ -41,9 +49,34 @@ public class Apriori extends Observable {
     private boolean usedAsLibrary = false;
     
     private List<Object[]>logs;
-    private ArrayList<String> buferT;
-    
+    private ArrayList<String> buferT;   
     private List<ItemSetFrequenteL> reglasL;
+    private Map<String,Double> reglaLMap;
+    private double soporte;
+
+    public Map<String, Double> getReglaLMap() {
+        return reglaLMap;
+    }
+
+    public int getNumTransactions() {
+        return numTransactions;
+    }
+
+    public void setNumTransactions(int numTransactions) {
+        this.numTransactions = numTransactions;
+    }
+
+    public void setReglaLMap(Map<String, Double> reglaLMap) {
+        this.reglaLMap = reglaLMap;
+    }
+
+    public double getSoporte() {
+        return soporte;
+    }
+
+    public void setSoporte(double soporte) {
+        this.soporte = soporte;
+    }   
 
     /**
      * This is the main interface to use this class as a library
@@ -62,15 +95,18 @@ public class Apriori extends Observable {
      * min support (e.g. 0.8 for 80%)
      */
     public Apriori(String[] args) throws Exception {
+        this.reglaLMap=new HashMap<String, Double>();
         this.reglasL=new ArrayList<ItemSetFrequenteL>();
         configure(args);
         go();
     }
     
     public Apriori(List<Object[]> logs,double sop,int numitems) throws Exception{
+        this.reglaLMap=new HashMap<String, Double>();
         this.reglasL=new ArrayList<ItemSetFrequenteL>();
         this.logs=logs;
         this.numItems=numitems;
+        this.soporte=sop;
         configureUsuario(sop);
         goUsuario();
     }
@@ -85,15 +121,12 @@ public class Apriori extends Observable {
         int nbFrequentSets = 0;
 
         while (itemsets.size() > 0) {
-
             calculateFrequentItemsetsUsuario();
-
             if (itemsets.size() != 0) {
                 nbFrequentSets += itemsets.size();
                 log("Encontrados " + itemsets.size() + " frequent itemsets de tamanio " + itemsetNumber + " (con soporte " + (minSup * 100) + "%)");
                 createNewItemsetsFromPreviousOnes();
             }
-
             itemsetNumber++;
         }
 
@@ -145,7 +178,8 @@ public class Apriori extends Observable {
             notifyObservers(itemset);
         } else {
             reglasL.add(new ItemSetFrequenteL(Arrays.toString(itemset), ((support / (double) numTransactions)), support));
-            System.out.println(Arrays.toString(itemset) + "  (" + ((support / (double) numTransactions)) + " " + support + ")");
+            reglaLMap.put(Arrays.toString(itemset), Double.parseDouble(""+support));
+            System.out.println(Arrays.toString(itemset) + "  (" + ((support / (double) numTransactions)) + " " + support + ")");         
         }
     }
 
@@ -180,6 +214,9 @@ public class Apriori extends Observable {
         }
         numTransactions=buferT.size();
         minSup = minSup / numTransactions; 
+        for(int i=0;i<buferT.size();i++){
+            System.out.println(buferT.get(i));
+        }
         outputConfig();
     }
     
@@ -258,7 +295,7 @@ public class Apriori extends Observable {
         if (args.length >= 2) {
             minSup = (Double.valueOf(args[1]).doubleValue());
         } else {
-            minSup = .8;// by default
+            minSup = 2;// by default
         }    	//if (minSup>1 || minSup<0) throw new Exception("minimo Sop: al valor");
 
 

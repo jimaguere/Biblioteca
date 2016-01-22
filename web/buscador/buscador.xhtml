@@ -185,7 +185,7 @@
                                          actionListener="#{buscadorControlador.regresar}"/>
                         
                         <p:dialog header="#{bundle.panelModalBuscador}" widgetVar="dlg2" modal="false" height="100" >
-                            <h:panelGrid columns="2" rendered="#{buscadorControlador.descarga}">
+                            <h:panelGrid columns="2" rendered="true">
                                 <p:outputLabel for="sop" value="#{bundle.labelSoporteBuscador}"/>
                                 <p:inputText value="#{buscadorControlador.soporte}" id="sop"/>
                                 <h:panelGroup/>
@@ -194,10 +194,6 @@
                                                  update="form"
                                                  actionListener="#{buscadorControlador.apriori}"/>
                             </h:panelGrid>
-                            <h:panelGrid columns="1" rendered="#{!buscadorControlador.descarga}">
-                                <h:outputText value="#{bundle.labelDescargaNo}"/>
-                            </h:panelGrid>
-
                         </p:dialog> 
                         
                         

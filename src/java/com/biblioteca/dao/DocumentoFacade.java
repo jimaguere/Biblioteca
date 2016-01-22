@@ -41,6 +41,8 @@ public class DocumentoFacade extends AbstractFacade<Documento> {
         q.executeUpdate();
         getEntityManager().merge(doc);
     }
+    
+
 
     public List<Object[]> findAllJaroWordsComplet(String string) {
         List<Object[]> listWords=new ArrayList<Object[]>();
@@ -54,6 +56,13 @@ public class DocumentoFacade extends AbstractFacade<Documento> {
                     + " fn_porcentaje_similitud(palabra,'" + string + "')>0.6 order by aceptacion desc").getResultList();
         } catch (Exception e) {}
          return listWords;
+    }
+    
+    public Documento finById(Integer id){
+        System.out.println("id:"+id);
+        Query q=getEntityManager().createNamedQuery("Documento.findByIdDocumento",Documento.class);
+        q.setParameter("idDocumento", id);
+        return (Documento)q.getSingleResult();   
     }
     
 }
