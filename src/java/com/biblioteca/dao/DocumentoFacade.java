@@ -59,7 +59,6 @@ public class DocumentoFacade extends AbstractFacade<Documento> {
     }
     
     public Documento finById(Integer id){
-        System.out.println("id:"+id);
         Query q=getEntityManager().createNamedQuery("Documento.findByIdDocumento",Documento.class);
         q.setParameter("idDocumento", id);
         return (Documento)q.getSingleResult();   

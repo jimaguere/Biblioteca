@@ -356,11 +356,7 @@ public class BuscadorControlador {
             }
             this.listaDocuementos.add(documento);
         }
-        this.logC.setUsuario(this.usuario.getUsuarioSession());
-        this.logC.setConsulta(this.cadenaBusqueda);
-        this.logC.setFechaConsulta(new Date());
-        this.logC.setLogDescargasList(new ArrayList<LogDescargas>());
-        this.logConsultaEjbFacade.create(logC);
+        this.logC=this.usuario.getLogC();
     }
 
     @SuppressWarnings("UnusedAssignment")
@@ -463,7 +459,6 @@ public class BuscadorControlador {
         Query query = parser.parse(cont);
 
         TopDocs hits = searcher.search(query, 10);
-
         this.documentoSeleccionado.setDocumentosRelacionados(new ArrayList<Documento>());
 
         for (ScoreDoc scoreDoc : hits.scoreDocs) {
@@ -480,7 +475,6 @@ public class BuscadorControlador {
                     documento.setMetaDatosDocumentos(documento.getMetaDatosDocumentos() + "\n" + index.stringValue());
                 }
             }
-
             this.documentoSeleccionado.getDocumentosRelacionados().add(documento);
         }
     }
@@ -506,29 +500,23 @@ public class BuscadorControlador {
     }
 
     public void apriori() throws Exception {
-        /* String[] entrada={"/home/and/NetBeansProjects/Biblioteca/prueba.dat",soporte};
-         Apriori ap = new Apriori(entrada);*/
         List<Object[]> descargas = logDescargaEjbFacade.transaccionesDescargas();
         int items = logDescargaEjbFacade.maxIntems();
         Apriori ap = new Apriori(descargas, Double.parseDouble(soporte), items);
-
-        ra = new ReglasAsociacion(ap, Double.parseDouble("0.6"));
+        ra = new ReglasAsociacion(ap, Double.parseDouble("0.7"));
         ra.generarReglas();
         generarConclusionRegla();
-
     }
 
     public void generarConclusionRegla() throws JRException {
         for (int j = 0; j < ra.getReglasFuertes().size(); j++) {
             ReglaDto reglaFuerte = ra.getReglasFuertes().get(j);
-            String format=String.format("%.2g%n", (reglaFuerte.getSoporte() * 100)).replaceAll("\n", "");
+           // String format=String.format("%.2g%n", (reglaFuerte.getSoporte() * 100)).replaceAll("\n", "");
+            String format=""+(reglaFuerte.getSoporte() * 100);
             String conclusion = ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " + format+ "% "
                     + ResourceBundle.getBundle("/Bundle").getString("usuariosAprio");
             String[] itemL = reglaFuerte.getL().replaceAll("\\[", "").replaceAll("]", "").split(",");
-      
-            System.out.println(Arrays.toString(itemL).toString());
             for (int i = 0; i < itemL.length; i++) {
-                System.out.println(itemL[i]);
                 String idDoc=itemL[i].replaceAll("\\[", "").replaceAll("]", "").trim();
                 Integer idD=Integer.parseInt(idDoc);
                 Documento doc = documentoEjbFacade.finById(idD);
@@ -540,11 +528,11 @@ public class BuscadorControlador {
                 }
             }
             Documento doc = documentoEjbFacade.finById(Integer.parseInt(reglaFuerte.getA().trim()));
-            String format1=String.format("%.2g%n", (reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100)).replaceAll("\n", "");
+            //String format1=String.format("%.2g%n", (reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100)).replaceAll("\n", "");
+            String format1=""+(reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100);
             conclusion = conclusion + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioTam") +" "+ doc.getMetaDatosValor().replaceAll("\n", "") + ".\n" + ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " +format1+"% "
                     + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDes") + " " + (reglaFuerte.getL().split(",").length + 1) + " "+ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDicNum");
             ra.getReglasFuertes().get(j).setConclusion(conclusion);
-            System.out.println(ra.getReglasFuertes().get(j).getConclusion());
         }
         generarReporte();
     }
@@ -580,8 +568,6 @@ public class BuscadorControlador {
             response.setContentType("application/pdf");
             context.responseComplete();
         } catch (Exception e) {
-        }
-        
-         
+        }     
     }
 }

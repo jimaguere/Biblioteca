@@ -4,12 +4,17 @@
  */
 package com.biblioteca.controladores;
 
+import com.biblioteca.dao.LogConsultaFacade;
 import com.biblioteca.dao.UsuarioFacade;
+import com.biblioteca.entidad.LogConsulta;
+import com.biblioteca.entidad.LogDescargas;
 import com.biblioteca.entidad.RolSoftMenu;
 import com.biblioteca.entidad.Usuario;
 import com.biblioteca.entidad.UsuarioRolSoftware;
 import java.io.IOException;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.annotation.PostConstruct;
@@ -34,6 +39,8 @@ public class UsuarioLoginControlador {
      */
     @EJB
     UsuarioFacade usuarioFacade;
+    @EJB
+    private LogConsultaFacade logConsultaEjbFacade;
     private String usuario;
     private String clave;
     private String claveActual;
@@ -42,6 +49,18 @@ public class UsuarioLoginControlador {
     private boolean login;
     private String url;
     private Usuario usuarioSession;
+    private LogConsulta logC;
+
+    public LogConsulta getLogC() {
+        return logC;
+    }
+
+    public void setLogC(LogConsulta logC) {
+        this.logC = logC;
+    }
+    
+    
+    
 
     public String getClaveActual() {
         return claveActual;
@@ -147,7 +166,13 @@ public class UsuarioLoginControlador {
         }
 
         if (user.getClave().equals(md5(this.clave))) {
+            this.logC = new LogConsulta();
             this.login = true;
+            this.logC.setUsuario(getUsuarioSession());
+            this.logC.setConsulta(getUsuarioSession().getCorreoElectronico());
+            this.logC.setFechaConsulta(new Date());
+            this.logC.setLogDescargasList(new ArrayList<LogDescargas>());
+            this.logConsultaEjbFacade.create(logC);
             context.getExternalContext().redirect(ruta + "/biblioteca/buscador/buscador.xhtml");
         } else {
             context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, ResourceBundle.getBundle("/Bundle").getString("errorLogin"), ResourceBundle.getBundle("/Bundle").getString("mensajeNoLogin") + this.usuario));
