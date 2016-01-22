@@ -522,7 +522,7 @@ public class BuscadorControlador {
                 Documento doc = documentoEjbFacade.finById(idD);
 
                 if (i < itemL.length - 1) {
-                    conclusion = conclusion + " " + doc.getMetaDatosValor() + " ^ ";
+                    conclusion = conclusion + " " + doc.getMetaDatosValor() + " "+ResourceBundle.getBundle("/Bundle").getString("usuariosDocumentosAprioAnd")+"";
                 } else {
                     conclusion = conclusion + " " + doc.getMetaDatosValor();
                 }
