@@ -395,6 +395,7 @@ public class BuscadorControlador {
                 Version.LUCENE_46));
         parser.setAllowLeadingWildcard(true);
         parser.setFuzzyMinSim(Float.parseFloat("2.0"));
+        parser.setFuzzyPrefixLength(1);
         Query query = parser.parse(cont);
         TopDocs hits = searcher.search(query, 30);
 
