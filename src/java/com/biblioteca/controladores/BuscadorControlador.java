@@ -27,7 +27,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +38,15 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
@@ -502,22 +513,16 @@ public class BuscadorControlador {
         Apriori ap = new Apriori(descargas, Double.parseDouble(soporte), items);
 
         ra = new ReglasAsociacion(ap, Double.parseDouble("0.6"));
-   
         ra.generarReglas();
-
-        for (int i = 0; i < ra.getReglasFuertes().size(); i++) {
-
-            System.out.println(ra.getReglasFuertes().get(i).getL()+"=>"+ra.getReglasFuertes().get(i).getA()+" "+ra.getReglasFuertes().get(i).getSoporte());
-        }
         generarConclusionRegla();
 
     }
 
-    public void generarConclusionRegla() {
+    public void generarConclusionRegla() throws JRException {
         for (int j = 0; j < ra.getReglasFuertes().size(); j++) {
             ReglaDto reglaFuerte = ra.getReglasFuertes().get(j);
-
-            String conclusion = ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " +String.format("%.2g%n", (reglaFuerte.getSoporte() * 100)) + "% "
+            String format=String.format("%.2g%n", (reglaFuerte.getSoporte() * 100)).replaceAll("\n", "");
+            String conclusion = ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " + format+ "% "
                     + ResourceBundle.getBundle("/Bundle").getString("usuariosAprio");
             String[] itemL = reglaFuerte.getL().replaceAll("\\[", "").replaceAll("]", "").split(",");
       
@@ -527,12 +532,7 @@ public class BuscadorControlador {
                 String idDoc=itemL[i].replaceAll("\\[", "").replaceAll("]", "").trim();
                 Integer idD=Integer.parseInt(idDoc);
                 Documento doc = documentoEjbFacade.finById(idD);
-                System.out.println("ok1");
-                if(doc==null){
-                    System.out.println("null");
-                }else{
-                    System.out.println(doc.getMetaDatosValor());
-                }
+
                 if (i < itemL.length - 1) {
                     conclusion = conclusion + " " + doc.getMetaDatosValor() + " ^ ";
                 } else {
@@ -540,11 +540,49 @@ public class BuscadorControlador {
                 }
             }
             Documento doc = documentoEjbFacade.finById(Integer.parseInt(reglaFuerte.getA().trim()));
+            String format1=String.format("%.2g%n", (reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100)).replaceAll("\n", "");
             conclusion = conclusion + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioTam") +" "+ doc.getMetaDatosValor()
-                    + ". " + ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " +String.format("%.2g%n", (reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100))+"% "
+                    + ". " + ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " +format1+"% "
                     + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDes") + " " + (reglaFuerte.getL().split(",").length + 1) + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDicNum");
             ra.getReglasFuertes().get(j).setConclusion(conclusion);
             System.out.println(ra.getReglasFuertes().get(j).getConclusion());
         }
+        generarReporte();
+    }
+    
+    public void generarReporte() throws JRException{
+        ServletContext servContx = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+        String rutaJasper = (String) servContx.getRealPath("/");//ruta raiz proyecto
+        rutaJasper = rutaJasper + "resources/jasper/reglasA.jasper";
+        String rutaTit=(String) servContx.getRealPath("/")+"resources/img/biblioteca.png";
+        String rutaPie=(String) servContx.getRealPath("/")+"resources/img/piep.png";
+        Map parameters = new HashMap();
+        parameters.put("titulo", rutaTit);
+        parameters.put("pie", rutaPie);
+        JRBeanCollectionDataSource lista = new JRBeanCollectionDataSource(ra.getReglasFuertes());
+        File fichero = new File(rutaJasper);
+        JasperReport jasperReport = (JasperReport) JRLoader
+                .loadObject(fichero);
+        
+ 
+        JasperPrint print = JasperFillManager.fillReport(jasperReport,
+                parameters, lista);
+  
+        byte[] bytes = JasperExportManager.exportReportToPdf(print);
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpServletResponse response = (HttpServletResponse) context
+                .getExternalContext().getResponse();
+
+        response.addHeader("Content-disposition",
+                "attachment;filename=reporte.pdf");
+        response.setContentLength(bytes.length);
+        try {
+            response.getOutputStream().write(bytes);
+            response.setContentType("application/pdf");
+            context.responseComplete();
+        } catch (Exception e) {
+        }
+        
+         
     }
 }
