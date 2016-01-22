@@ -541,9 +541,8 @@ public class BuscadorControlador {
             }
             Documento doc = documentoEjbFacade.finById(Integer.parseInt(reglaFuerte.getA().trim()));
             String format1=String.format("%.2g%n", (reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100)).replaceAll("\n", "");
-            conclusion = conclusion + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioTam") +" "+ doc.getMetaDatosValor()
-                    + ". " + ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " +format1+"% "
-                    + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDes") + " " + (reglaFuerte.getL().split(",").length + 1) + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDicNum");
+            conclusion = conclusion + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioTam") +" "+ doc.getMetaDatosValor().replaceAll("\n", "") + ".\n" + ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " +format1+"% "
+                    + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDes") + " " + (reglaFuerte.getL().split(",").length + 1) + " "+ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDicNum");
             ra.getReglasFuertes().get(j).setConclusion(conclusion);
             System.out.println(ra.getReglasFuertes().get(j).getConclusion());
         }
