@@ -574,6 +574,7 @@ public class BuscadorControlador {
             response.setContentType("application/pdf");
             context.responseComplete();
         } catch (Exception e) {
+             JsfUtil.addErrorMessage(e.toString());
         }     
     }
 }
