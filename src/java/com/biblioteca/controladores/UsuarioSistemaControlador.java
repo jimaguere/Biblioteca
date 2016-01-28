@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import org.primefaces.event.FlowEvent;
 import org.primefaces.model.DualListModel;
 
 /**
@@ -42,6 +43,24 @@ public class UsuarioSistemaControlador {
     private UsuarioFacade usuarioEjb;
     @EJB
     private RolSoftwareFacade rolSoftwareEjb;
+    private boolean skip;
+
+    public void setSkip(boolean skip) {
+        this.skip = skip;
+    }
+
+    public boolean isSkip() {
+        return skip;
+    }
+
+    public String onFlowProcess(FlowEvent event) {
+        if (skip) {
+            skip = false;   //reset in case user goes back
+            return "confirm";
+        } else {
+            return event.getNewStep();
+        }
+    }
 
     public List<Usuario> getUsuariosSistema() {
         return usuariosSistema;
