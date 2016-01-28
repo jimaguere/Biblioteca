@@ -66,8 +66,11 @@
                             <h1>
                                 <ui:insert name="title">  
                                     <h:form>     
-                                        <h:panelGrid columns="4">
+                                        <h:panelGrid columns="7">
                                             <p:commandLink value="#{bundle.editarUsuario}"  action="/usuario/EditarPerfilUsuario.xhtml"/>
+                                            <h:panelGroup/>
+                                            <h:panelGroup/>
+                                            <p:commandLink value="#{bundle.buscadorMasBi}"  action="/buscador/buscador.xhtml"/>
                                             <h:panelGroup/>
                                             <h:panelGroup/>
                                             <p:commandLink value="#{bundle.cerrarSession}" 
