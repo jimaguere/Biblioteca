@@ -4,7 +4,6 @@
  */
 package com.biblioteca.dao;
 
-import com.biblioteca.entidad.TipoDocumento;
 import com.biblioteca.entidad.Usuario;
 import java.util.List;
 import javax.ejb.Stateless;

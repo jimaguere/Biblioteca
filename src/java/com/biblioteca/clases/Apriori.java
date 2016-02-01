@@ -17,8 +17,6 @@ public class Apriori extends Observable {
         this.reglasL = reglasL;
     }
     
-    
-
     public static void main(String[] args) throws Exception {
         String[] entrada = {"/home/and/NetBeansProjects/Biblioteca/prueba.dat", "2"};
         Apriori ap = new Apriori(entrada);

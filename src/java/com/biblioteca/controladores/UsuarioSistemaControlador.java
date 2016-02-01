@@ -158,10 +158,9 @@ public class UsuarioSistemaControlador {
 
     public void update() {
         try {
-            usuario.setClave(md5(confirmarClave));
-            usuario.setUsuario(usuario.getCorreoElectronico());
+            this.usuario.setClave(md5(confirmarClave));
             asociarUsuarioRol();
-            usuarioEjb.editar(usuario);
+            usuarioEjb.editar(this.usuario);
             JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("mensajeUsuarioActualizado"));
             iniciar();
         } catch (Exception e) {
@@ -185,10 +184,10 @@ public class UsuarioSistemaControlador {
         for (RolSoftware rol : rolesSoft) {
             UsuarioRolSoftware usuarioRol = new UsuarioRolSoftware();
             usuarioRol.setIdRol(rol);
-            usuarioRol.setUsuario(usuario);
+            usuarioRol.setUsuario(this.usuario);
             listaUsuariosRol.add(usuarioRol);
         }
-        usuario.setUsuarioRolSoftwareList(listaUsuariosRol);
+        this.usuario.setUsuarioRolSoftwareList(listaUsuariosRol);
     }
 
     public void prepararRolUsuario() {

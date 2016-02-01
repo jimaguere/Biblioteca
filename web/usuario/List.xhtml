@@ -17,15 +17,18 @@
 
                     <p:dataTable value="#{usuarioSistemaControlador.usuariosSistema}" var="item" 
                                  reflow="true" rows="5" paginator="true">
+                        
                         <p:column headerText="#{bundle.ListUsuarioTitle_usuario}">
                             <h:outputText value="#{item.usuario}"/>
                         </p:column>
+                        
                         <p:column>
                             <f:facet name="header">
                                 <h:outputText value="#{bundle.ListUsuarioTitle_nombres}"/>
                             </f:facet>
                             <h:outputText value="#{item.nombres}"/>
                         </p:column>
+                        
                         <p:column>
                             <f:facet name="header">
                                 <h:outputText value="#{bundle.ListUsuarioTitle_apellidos}"/>
@@ -70,6 +73,7 @@
                                              oncomplete="PF('dlg2').show();"
                                              /><br/>
                         </p:column>
+                        
                     </p:dataTable>
 
                     <br />
@@ -194,7 +198,7 @@
                                     </p:panelGrid>
                                 </p:fieldset>
                                 <p:commandButton actionListener="#{usuarioSistemaControlador.create}" value="#{bundle.CreateUsuarioSaveLink}" rendered="#{!usuarioSistemaControlador.editar}" ajax="true" update=":form"/>
-                                <p:commandButton actionListener="#{usuarioSistemaControlador.update}" value="#{bundle.EditUsuarioSaveLink}" rendered="#{usuarioSistemaControlador.editar}" ajax="true" update=":form"/>
+                                <p:commandButton actionListener="#{usuarioSistemaControlador.update}" value="#{bundle.EditUsuarioViewLink}" rendered="#{usuarioSistemaControlador.editar}" ajax="true" update=":form"/>
                                 <p:commandButton value="#{bundle.btCancelar}" actionListener="#{usuarioSistemaControlador.iniciar}" update=":form" ajax="true" immediate="true" process="@this"/>
                             </p:tab>
 
