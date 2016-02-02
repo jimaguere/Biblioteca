@@ -528,7 +528,6 @@ public class BuscadorControlador {
     }
 
     public void generarConclusionReglaDocumento() throws JRException {
-        System.out.println("ante:"+this.documentoSeleccionado.getIdDocumento().toString());
         if (ra.getAntecendente().containsKey(this.documentoSeleccionado.getIdDocumento().toString().trim())) {
             String[] l = ra.getAntecendente().get(this.documentoSeleccionado.getIdDocumento().toString().trim());
             String conclusion = ResourceBundle.getBundle("/Bundle").getString("usarioAptioRegLos");

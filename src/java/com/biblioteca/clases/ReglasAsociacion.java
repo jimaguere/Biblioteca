@@ -109,7 +109,6 @@ public class ReglasAsociacion {
                 rF.setSoporteRegla(ap.getReglaLMap().get(l.getL()).doubleValue());
                 reglasFuertes.add(rF);
                 antecendente.put(lItem[i].trim(), subL);
-                System.out.println("rule:"+lItem[i].trim());
             }            
         }
     }
