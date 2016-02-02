@@ -8,7 +8,9 @@ import com.biblioteca.dao.DocumentoFacade;
 import com.biblioteca.entidad.Documento;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -22,6 +24,7 @@ public class ReglasAsociacion {
     private List<ItemSetFrequenteL> reglas;
     private DocumentoFacade documentoEjbFacade;
     private List<ReglaDto> reglasFuertes;
+    private Map<String,String[]> antecendente;
 
     public ReglasAsociacion(Apriori ap, double minConf, DocumentoFacade documentoEjbFacade) {
         this.ap = ap;
@@ -69,6 +72,7 @@ public class ReglasAsociacion {
         this.ap.setSoporte(2.0);
         this.minConf=minConf;
         this.reglasFuertes=new ArrayList<ReglaDto>();
+        this.antecendente=new HashMap<String, String[]>();
     }
 
     public Apriori getAp() {
@@ -77,6 +81,14 @@ public class ReglasAsociacion {
 
     public void setAp(Apriori ap) {
         this.ap = ap;
+    }
+
+    public Map<String, String[]> getAntecendente() {
+        return antecendente;
+    }
+
+    public void setAntecendente(Map<String, String[]> antecendente) {
+        this.antecendente = antecendente;
     }
     
     public void regla(ItemSetFrequenteL l){  
@@ -96,6 +108,8 @@ public class ReglasAsociacion {
                 ReglaDto rF=new ReglaDto(subS,lItem[i] , sopR);
                 rF.setSoporteRegla(ap.getReglaLMap().get(l.getL()).doubleValue());
                 reglasFuertes.add(rF);
+                antecendente.put(lItem[i].trim(), subL);
+                System.out.println("rule:"+lItem[i].trim());
             }            
         }
     }

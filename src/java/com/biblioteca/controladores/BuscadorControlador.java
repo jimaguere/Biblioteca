@@ -357,7 +357,7 @@ public class BuscadorControlador {
             }
             this.listaDocuementos.add(documento);
         }
-        this.logC=this.usuario.getLogC();
+        this.logC = this.usuario.getLogC();
     }
 
     @SuppressWarnings("UnusedAssignment")
@@ -507,48 +507,87 @@ public class BuscadorControlador {
         Apriori ap = new Apriori(descargas, Double.parseDouble(soporte), items);
         ra = new ReglasAsociacion(ap, Double.parseDouble("0.7"));
         ra.generarReglas();
-        if(!ra.getReglasFuertes().isEmpty()){
+        if (!ra.getReglasFuertes().isEmpty()) {
             generarConclusionRegla();
-        }else{
-             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("usuarioValNoRule"));
+        } else {
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("usuarioValNoRule"));
         }
+    }
+
+    public void aprioriDocumento() throws Exception {
+        List<Object[]> descargas = logDescargaEjbFacade.transaccionesDescargas();
+        int items = logDescargaEjbFacade.maxIntems();
+        Apriori ap = new Apriori(descargas, Double.parseDouble("2"), items);
+        ra = new ReglasAsociacion(ap, Double.parseDouble("0.7"));
+        ra.generarReglas();
+        if (!ra.getReglasFuertes().isEmpty()) {
+            generarConclusionReglaDocumento();
+        } else {
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("usuarioValNoRule"));
+        }
+    }
+
+    public void generarConclusionReglaDocumento() throws JRException {
+        System.out.println("ante:"+this.documentoSeleccionado.getIdDocumento().toString());
+        if (ra.getAntecendente().containsKey(this.documentoSeleccionado.getIdDocumento().toString().trim())) {
+            String[] l = ra.getAntecendente().get(this.documentoSeleccionado.getIdDocumento().toString().trim());
+            String conclusion = ResourceBundle.getBundle("/Bundle").getString("usarioAptioRegLos");
+            for (int i = 0; i < l.length; i++) {
+                String idDoc = l[i].replaceAll("\\[", "").replaceAll("]", "").trim();
+                Integer idD = Integer.parseInt(idDoc);
+                Documento doc = documentoEjbFacade.finById(idD);
+
+                if (i < l.length - 1) {
+                    conclusion = conclusion + " " + doc.getMetaDatosValor() + " " + ResourceBundle.getBundle("/Bundle").getString("usuariosDocumentosAprioAnd") + "";
+                } else {
+                    conclusion = conclusion + " " + doc.getMetaDatosValor();
+                }
+            }
+            Documento doc = documentoSeleccionado;
+            conclusion = conclusion + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioTam") + " " + doc.getMetaDatosValor().replaceAll("\n", "") + ".\n";
+            generarReporteDos(conclusion);
+        } else {
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("usuarioValNoRule"));
+        }
+
+
     }
 
     public void generarConclusionRegla() throws JRException {
         for (int j = 0; j < ra.getReglasFuertes().size(); j++) {
             ReglaDto reglaFuerte = ra.getReglasFuertes().get(j);
-           // String format=String.format("%.2g%n", (reglaFuerte.getSoporte() * 100)).replaceAll("\n", "");
-            String format=""+(reglaFuerte.getSoporte() * 100);
-            String conclusion = ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " + format+ "% "
+            // String format=String.format("%.2g%n", (reglaFuerte.getSoporte() * 100)).replaceAll("\n", "");
+            String format = "" + (reglaFuerte.getSoporte() * 100);
+            String conclusion = ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " + format + "% "
                     + ResourceBundle.getBundle("/Bundle").getString("usuariosAprio");
             String[] itemL = reglaFuerte.getL().replaceAll("\\[", "").replaceAll("]", "").split(",");
             for (int i = 0; i < itemL.length; i++) {
-                String idDoc=itemL[i].replaceAll("\\[", "").replaceAll("]", "").trim();
-                Integer idD=Integer.parseInt(idDoc);
+                String idDoc = itemL[i].replaceAll("\\[", "").replaceAll("]", "").trim();
+                Integer idD = Integer.parseInt(idDoc);
                 Documento doc = documentoEjbFacade.finById(idD);
 
                 if (i < itemL.length - 1) {
-                    conclusion = conclusion + " " + doc.getMetaDatosValor() + " "+ResourceBundle.getBundle("/Bundle").getString("usuariosDocumentosAprioAnd")+"";
+                    conclusion = conclusion + " " + doc.getMetaDatosValor() + " " + ResourceBundle.getBundle("/Bundle").getString("usuariosDocumentosAprioAnd") + "";
                 } else {
                     conclusion = conclusion + " " + doc.getMetaDatosValor();
                 }
             }
             Documento doc = documentoEjbFacade.finById(Integer.parseInt(reglaFuerte.getA().trim()));
             //String format1=String.format("%.2g%n", (reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100)).replaceAll("\n", "");
-            String format1=""+(reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100);
-            conclusion = conclusion + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioTam") +" "+ doc.getMetaDatosValor().replaceAll("\n", "") + ".\n" + ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " +format1+"% "
-                    + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDes") + " " + (reglaFuerte.getL().split(",").length + 1) + " "+ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDicNum");
+            String format1 = "" + (reglaFuerte.getSoporteRegla() / ra.getAp().getNumTransactions() * 100);
+            conclusion = conclusion + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioTam") + " " + doc.getMetaDatosValor().replaceAll("\n", "") + ".\n" + ResourceBundle.getBundle("/Bundle").getString("elAprio") + " " + format1 + "% "
+                    + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDes") + " " + (reglaFuerte.getL().split(",").length + 1) + " " + ResourceBundle.getBundle("/Bundle").getString("usuariosAprioDicNum");
             ra.getReglasFuertes().get(j).setConclusion(conclusion);
         }
         generarReporte();
     }
-    
-    public void generarReporte() throws JRException{
+
+    public void generarReporte() throws JRException {
         ServletContext servContx = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
         String rutaJasper = (String) servContx.getRealPath("/");//ruta raiz proyecto
         rutaJasper = rutaJasper + "resources/jasper/reglasA.jasper";
-        String rutaTit=(String) servContx.getRealPath("/")+"resources/img/biblioteca.png";
-        String rutaPie=(String) servContx.getRealPath("/")+"resources/img/piep.png";
+        String rutaTit = (String) servContx.getRealPath("/") + "resources/img/biblioteca.png";
+        String rutaPie = (String) servContx.getRealPath("/") + "resources/img/piep.png";
         Map parameters = new HashMap();
         parameters.put("titulo", rutaTit);
         parameters.put("pie", rutaPie);
@@ -556,11 +595,11 @@ public class BuscadorControlador {
         File fichero = new File(rutaJasper);
         JasperReport jasperReport = (JasperReport) JRLoader
                 .loadObject(fichero);
-        
- 
+
+
         JasperPrint print = JasperFillManager.fillReport(jasperReport,
                 parameters, lista);
-  
+
         byte[] bytes = JasperExportManager.exportReportToPdf(print);
         FacesContext context = FacesContext.getCurrentInstance();
         HttpServletResponse response = (HttpServletResponse) context
@@ -574,7 +613,45 @@ public class BuscadorControlador {
             response.setContentType("application/pdf");
             context.responseComplete();
         } catch (Exception e) {
-             JsfUtil.addErrorMessage(e.toString());
-        }     
+            JsfUtil.addErrorMessage(e.toString());
+        }
+    }
+
+    private void generarReporteDos(String conclusion) throws JRException {
+        this.soporte="2";
+        ServletContext servContx = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+        String rutaJasper = (String) servContx.getRealPath("/");//ruta raiz proyecto
+        rutaJasper = rutaJasper + "resources/jasper/reglasA.jasper";
+        String rutaTit = (String) servContx.getRealPath("/") + "resources/img/biblioteca.png";
+        String rutaPie = (String) servContx.getRealPath("/") + "resources/img/piep.png";
+        Map parameters = new HashMap();
+        parameters.put("titulo", rutaTit);
+        parameters.put("pie", rutaPie);
+        ra.setReglasFuertes(new ArrayList<ReglaDto>());
+        ra.getReglasFuertes().add(new ReglaDto("", "", conclusion, Double.parseDouble(soporte),Double.parseDouble(soporte)));
+        JRBeanCollectionDataSource lista = new JRBeanCollectionDataSource(ra.getReglasFuertes());
+        File fichero = new File(rutaJasper);
+        JasperReport jasperReport = (JasperReport) JRLoader
+                .loadObject(fichero);
+
+
+        JasperPrint print = JasperFillManager.fillReport(jasperReport,
+                parameters, lista);
+
+        byte[] bytes = JasperExportManager.exportReportToPdf(print);
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpServletResponse response = (HttpServletResponse) context
+                .getExternalContext().getResponse();
+
+        response.addHeader("Content-disposition",
+                "attachment;filename=reporte.pdf");
+        response.setContentLength(bytes.length);
+        try {
+            response.getOutputStream().write(bytes);
+            response.setContentType("application/pdf");
+            context.responseComplete();
+        } catch (Exception e) {
+            JsfUtil.addErrorMessage(e.toString());
+        }
     }
 }

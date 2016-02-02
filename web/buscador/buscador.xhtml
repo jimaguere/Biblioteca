@@ -170,6 +170,14 @@
                                          ajax="true" update="form"
                             />
                         
+                        <p:commandButton value="#{bundle.actionDescargasRelacionadasDocumento}"
+                                         ajax="false"
+                                         update="form"
+                                         rendered="#{buscadorControlador.seleccionDocumento}"  
+                                         actionListener="#{buscadorControlador.aprioriDocumento}"
+                                         />
+                        
+                        
                         <p:commandButton value="#{bundle.actionDescargasRelacionadas}"
                                          ajax="true"
                                          update="form"
