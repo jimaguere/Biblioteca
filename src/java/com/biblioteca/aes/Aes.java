@@ -38,8 +38,8 @@ public class Aes {
     }
 
     public static void main(String[] args) throws Exception {
-        String passwordEnc = Aes.encriptar("admin");
-        System.out.println("Original : " + passwordEnc);
+        String passwordEnc = Aes.encriptar("901214Diciembre");
+        System.out.println("Original :" + passwordEnc);
         Calendar calendar = Calendar.getInstance();
         Date fecha=new Date();
         calendar.setTime(fecha); // Configuramos la fecha que se recibe
