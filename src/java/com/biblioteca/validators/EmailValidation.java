@@ -38,7 +38,7 @@ public class EmailValidation implements Validator, ClientValidator {
 
         if (!pattern.matcher(value.toString()).matches()) {
             throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error",
-                    value + " is not a valid email;"));
+                    value + ResourceBundle.getBundle("/Bundle").getString("mensajeMailValidaitor")));
         }
     }
 
