@@ -14,14 +14,13 @@ import javax.faces.context.FacesContext;
 import javax.faces.validator.FacesValidator;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
-import org.primefaces.validate.ClientValidator;
 
 /**
  *
  * @author mateo
  */
 @FacesValidator("emailValidator")
-public class EmailValidation implements Validator, ClientValidator {
+public class EmailValidation implements Validator {
 
     private Pattern pattern;
     private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
@@ -47,6 +46,6 @@ public class EmailValidation implements Validator, ClientValidator {
     }
 
     public String getValidatorId() {
-        return "custom.emailValidator";
+        return "emailValidator";
     }
 }

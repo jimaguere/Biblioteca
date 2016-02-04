@@ -17,7 +17,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -140,6 +139,27 @@ public class RegistroController {
         }
 
         return h.toString();
+    }
+    
+    public void recurperarContraseña() throws Exception{
+        selected = this.ejbFacade.find(selected.getCorreoElectronico());
+        if (selected != null) {
+            Correo c = new Correo();
+            c.addDestino(this.selected.getCorreoElectronico());
+            c.setAsunto(ResourceBundle.getBundle("/Bundle").getString("asuntoClave"));
+            this.selected.setClave(md5(md5((new Date().toGMTString()))));
+            c.setMensaje("<p align='justify'>"
+                    + ResourceBundle.getBundle("/Bundle").getString("mensajeEstimado") + ":" + this.selected.getNombres() + " " + this.selected.getApellidos()
+                    + " " + ResourceBundle.getBundle("/Bundle").getString("mensajeNuevaContraseña")
+                    + " " + md5((new Date()).toGMTString()));
+            ejbFacade.edit(selected);
+            c.enviar();
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, "", ResourceBundle.getBundle("/Bundle").getString("asuntoRegistro"));
+            FacesContext.getCurrentInstance().addMessage(null, facesMsg);
+        }else{
+            FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "", ResourceBundle.getBundle("/Bundle").getString("cuentaNoregistrada"));
+            FacesContext.getCurrentInstance().addMessage(null, facesMsg);
+        }    
     }
 
     /**
