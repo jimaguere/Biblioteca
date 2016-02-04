@@ -4,6 +4,7 @@
  */
 package com.biblioteca.validators;
 
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,36 +15,39 @@ import javax.faces.context.FacesContext;
 import javax.faces.validator.FacesValidator;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
+import org.primefaces.validate.ClientValidator;
 
 /**
  *
  * @author mateo
  */
 @FacesValidator("emailValidator")
-public class EmailValidation implements Validator {
+public class EmailValidation implements Validator, ClientValidator {
 
-  
-    @Override
-    public void validate(FacesContext facesContext,UIComponent uIComponent,Object value) {
-            Pattern pattern = Pattern.compile("\\w+@\\w+\\.\\w+");
-            Matcher matcher = pattern.matcher(
-                (CharSequence) value);
-            HtmlInputText htmlInputText =
-                (HtmlInputText) uIComponent;
-        String label;
-        if (htmlInputText.getLabel() == null
-                || htmlInputText.getLabel().trim().equals("")) {
-            label = htmlInputText.getId();
-        } else {
-            label = htmlInputText.getLabel();
-        }
-        if (!matcher.matches()) {
-            FacesMessage facesMessage =
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    label
-                    + "",ResourceBundle.getBundle("/Bundle").getString("mensajeMailValidaitor"));
-            throw new ValidatorException(facesMessage);
+    private Pattern pattern;
+    private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+    public EmailValidation() {
+        pattern = Pattern.compile(EMAIL_PATTERN);
+    }
+
+    public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {
+        if (value == null) {
+            return;
         }
 
+        if (!pattern.matcher(value.toString()).matches()) {
+            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error",
+                    value + " is not a valid email;"));
+        }
+    }
+
+    public Map<String, Object> getMetadata() {
+        return null;
+    }
+
+    public String getValidatorId() {
+        return "custom.emailValidator";
     }
 }
